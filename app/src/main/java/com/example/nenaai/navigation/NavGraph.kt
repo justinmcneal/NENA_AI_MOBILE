@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.nenaai.ui.screens.OnboardingScreen
 import com.example.nenaai.ui.screens.SplashScreen
 
 @Composable
@@ -22,7 +23,12 @@ fun NavGraph() {
             })
         }
         composable(Screen.Onboarding.route) {
-            // Onboarding screen will be built here in the next step
+            OnboardingScreen(onOnboardingFinished = {
+                navController.navigate(Screen.Main.route) {
+                    // Pop onboarding screen off the back stack
+                    popUpTo(Screen.Onboarding.route) { inclusive = true }
+                }
+            })
         }
         composable(Screen.Main.route) {
             // Main chat screen will be built later
