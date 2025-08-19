@@ -38,8 +38,9 @@ fun DefaultPreview() {
         Surface(
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colorScheme.background
-        ) {
-            // Preview content will go here.
+        )
+        {
+            NavGraph()
         }
     }
 }

@@ -4,34 +4,36 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.nenaai.ui.screens.OnboardingScreen
-import com.example.nenaai.ui.screens.SplashScreen
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.nenaai.ui.screens.LoginScreen
+import com.example.nenaai.ui.screens.OtpVerificationScreen
+import com.example.nenaai.viewmodel.AuthViewModel
 
 @Composable
 fun NavGraph() {
     val navController = rememberNavController()
+    val authViewModel: AuthViewModel = viewModel()
+
     NavHost(
         navController = navController,
-        startDestination = Screen.Splash.route
+        startDestination = Screen.Login.route
     ) {
-        composable(Screen.Splash.route) {
-            SplashScreen(onTimeout = {
-                navController.navigate(Screen.Onboarding.route) {
-                    // Pop splash screen off the back stack
-                    popUpTo(Screen.Splash.route) { inclusive = true }
-                }
-            })
+        composable(Screen.Login.route) {
+            LoginScreen(onOtpSent = {
+                navController.navigate(Screen.OtpVerification.route)
+            }, authViewModel = authViewModel)
         }
-        composable(Screen.Onboarding.route) {
-            OnboardingScreen(onOnboardingFinished = {
+        composable(Screen.OtpVerification.route) {
+            OtpVerificationScreen(onVerificationSuccess = {
                 navController.navigate(Screen.Main.route) {
-                    // Pop onboarding screen off the back stack
-                    popUpTo(Screen.Onboarding.route) { inclusive = true }
+                    popUpTo(Screen.Login.route) { inclusive = true }
                 }
-            })
+            }, authViewModel = authViewModel)
         }
         composable(Screen.Main.route) {
-            // Main chat screen will be built later
+            // Main app content will go here later
+            // For now, a simple text to indicate successful authentication
+            androidx.compose.material3.Text("Authentication Successful! Main App Content Here.")
         }
     }
 }
