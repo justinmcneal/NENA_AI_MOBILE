@@ -1,4 +1,4 @@
-package com.example.nenaai.common.composables
+package com.example.nenaai.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
