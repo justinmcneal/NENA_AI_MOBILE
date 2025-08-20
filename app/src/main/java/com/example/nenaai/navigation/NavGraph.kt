@@ -6,7 +6,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nenaai.ui.screens.LoginScreen
+import com.example.nenaai.ui.screens.MainScreen
 import com.example.nenaai.ui.screens.OtpVerificationScreen
+import com.example.nenaai.ui.screens.UserInformation
 import com.example.nenaai.viewmodel.AuthViewModel
 
 @Composable
@@ -16,7 +18,7 @@ fun NavGraph() {
 
     NavHost(
         navController = navController,
-        startDestination = Screen.Login.route
+        startDestination = Screen.UserInformation.route
     ) {
         composable(Screen.Login.route) {
             LoginScreen(onOtpSent = {
@@ -31,9 +33,11 @@ fun NavGraph() {
             }, authViewModel = authViewModel)
         }
         composable(Screen.Main.route) {
-            // Main app content will go here later
-            // For now, a simple text to indicate successful authentication
-            androidx.compose.material3.Text("Authentication Successful! Main App Content Here.")
+            MainScreen()
         }
+        composable(Screen.UserInformation.route){
+            UserInformation(navController)
+        }
+
     }
 }
