@@ -8,5 +8,7 @@ data class UserDetails(
     var phone: String = "",
     var addressLine1: String = "",
     var city: String = "",
-    var zipCode: String = ""
+    var zipCode: String = "",
+    var pin: String = "",
+
 )

@@ -1,45 +1,32 @@
 package com.example.nenaai.ui.screens
 
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Phone
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource // Used for local drawable, adjust if using another image source
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.nenaai.ui.theme.NENA_AI_MOBILETheme
+import androidx.navigation.NavController
 import com.example.nenaai.viewmodel.AuthViewModel
-import com.example.nenaai.R // Assuming R.drawable.your_logo is available or replace with a placeholder
 
 @Composable
-fun LoginScreen(onOtpSent: () -> Unit, authViewModel: AuthViewModel = viewModel()) {
-    val phoneNumber by authViewModel.phoneNumber.collectAsState()
-    val error by authViewModel.error.collectAsState()
+fun LoginScreen(
+    onLoginSuccess: () -> Unit,
+    authViewModel: AuthViewModel = viewModel(),
+    navController: NavController
+) {
+    var phone by remember { mutableStateOf("") }
+    var pin by remember { mutableStateOf("") }
+    val status by authViewModel.status.collectAsState()
 
     Column(
         modifier = Modifier
@@ -48,104 +35,89 @@ fun LoginScreen(onOtpSent: () -> Unit, authViewModel: AuthViewModel = viewModel(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // App Logo/Illustration (replace with your actual logo)
-        // For demonstration, using a placeholder image or a simple Icon
-        // If you have a drawable: Image(painter = painterResource(id = R.drawable.your_logo), ...)
-        // For a simple placeholder:
+        // App Logo
         Icon(
-            Icons.Default.Phone, // Using a phone icon as a placeholder
+            Icons.Default.Phone,
             contentDescription = "App Logo",
             modifier = Modifier.size(96.dp),
-            tint = MaterialTheme.colorScheme.primary // Match app theme
+            tint = MaterialTheme.colorScheme.primary
         )
-        Spacer(modifier = Modifier.height(48.dp))
 
-        // Enhanced Title
+        Spacer(modifier = Modifier.height(32.dp))
+
         Text(
-            text = "Welcome to Nena AI",
-            style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Bold),
+            text = "Welcome Back",
+            style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
             color = MaterialTheme.colorScheme.onBackground,
             textAlign = TextAlign.Center,
             modifier = Modifier.fillMaxWidth()
         )
-        Spacer(modifier = Modifier.height(8.dp))
 
-        // Informative subtitle
-        Text(
-            text = "Enter your mobile number to get started. We'll send a verification code.",
-            style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.fillMaxWidth()
-        )
         Spacer(modifier = Modifier.height(32.dp))
 
-        // OutlinedTextField with improved label and leading icon
+        // Phone number input
         OutlinedTextField(
-            value = phoneNumber,
-            onValueChange = { newValue ->
-                if (newValue.length <= 10) {
-                    authViewModel.setPhoneNumber(newValue)
-                    authViewModel.clearError()
-                }
-            },
+            value = phone,
+            onValueChange = { if (it.length <= 11) phone = it },
             label = { Text("Mobile Number") },
-            placeholder = { Text("e.g., 9123456789") }, // Moved example to placeholder
-            leadingIcon = {
-                Icon(Icons.Default.Phone, contentDescription = "Phone Icon")
-            },
+            placeholder = { Text("e.g., 09123456789") },
+            leadingIcon = { Icon(Icons.Default.Phone, contentDescription = null) },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
             modifier = Modifier.fillMaxWidth(),
-            isError = error != null, // Use error directly for isError
-            shape = RoundedCornerShape(12.dp) // Rounded corners for text field
+            shape = RoundedCornerShape(12.dp)
         )
 
-        // Error message handling
-        error?.let { errorMessage ->
-            Text(
-                text = errorMessage,
-                color = MaterialTheme.colorScheme.error,
-                style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 8.dp),
-                textAlign = TextAlign.Start // Align error text to start
-            )
-        }
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // PIN input
+        OutlinedTextField(
+            value = pin,
+            onValueChange = { if (it.length <= 6) pin = it },
+            label = { Text("PIN") },
+            placeholder = { Text("Enter 6-digit PIN") },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
+            visualTransformation = PasswordVisualTransformation(),
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(12.dp)
+        )
+
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Styled Button
         Button(
             onClick = {
-                authViewModel.sendOtp(phoneNumber)
-                // Assuming authViewModel.sendOtp updates the error state
-                // We should only navigate if there's no error *after* attempting to send OTP
-                if (authViewModel.error.value == null) {
-                    onOtpSent()
+                authViewModel.loginWithPin(phone, pin)
+                if (status == "Login success!") {
+                    onLoginSuccess()
                 }
             },
             modifier = Modifier
                 .fillMaxWidth()
-                .height(56.dp), // Fixed height for a more prominent button
+                .height(56.dp),
             colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.primary // Use primary color for button
+                containerColor = MaterialTheme.colorScheme.primary
             ),
-            shape = RoundedCornerShape(12.dp), // Rounded corners for button
-            elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp) // Subtle shadow
+            shape = RoundedCornerShape(12.dp)
         ) {
             Text(
-                "Send OTP",
+                "Login",
                 style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onPrimary // Text color on primary button
+                color = MaterialTheme.colorScheme.onPrimary
             )
         }
-    }
-}
+        Spacer(modifier = Modifier.height(24.dp))
+        TextButton(onClick = { navController.navigate("registration_screen") }) {
+            Text("Register")
+        }
 
-@Preview(showBackground = true)
-@Composable
-fun LoginScreenPreview() {
-    NENA_AI_MOBILETheme {
-        LoginScreen(onOtpSent = {})
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Status message (success or error)
+        Text(
+            text = status,
+            color = if (status.contains("success", true)) MaterialTheme.colorScheme.primary
+            else MaterialTheme.colorScheme.error,
+            modifier = Modifier.fillMaxWidth(),
+            textAlign = TextAlign.Center
+        )
     }
 }
