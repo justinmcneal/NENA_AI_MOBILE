@@ -5,4 +5,5 @@ sealed class Screen(val route: String) {
     object OtpVerification : Screen("otp_verification_screen")
     object Main : Screen("main_screen") // Main app content after auth
     object UserInformation : Screen("user_information")
+    object VerificationScreen: Screen("verification")
 }

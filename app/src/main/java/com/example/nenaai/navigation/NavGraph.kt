@@ -9,6 +9,7 @@ import com.example.nenaai.ui.screens.LoginScreen
 import com.example.nenaai.ui.screens.MainScreen
 import com.example.nenaai.ui.screens.OtpVerificationScreen
 import com.example.nenaai.ui.screens.UserInformation
+import com.example.nenaai.ui.screens.VerificationScreen
 import com.example.nenaai.viewmodel.AuthViewModel
 
 @Composable
@@ -18,7 +19,7 @@ fun NavGraph() {
 
     NavHost(
         navController = navController,
-        startDestination = Screen.UserInformation.route
+        startDestination =Screen.Main.route
     ) {
         composable(Screen.Login.route) {
             LoginScreen(onOtpSent = {
@@ -33,10 +34,13 @@ fun NavGraph() {
             }, authViewModel = authViewModel)
         }
         composable(Screen.Main.route) {
-            MainScreen()
+            MainScreen(navController)
         }
         composable(Screen.UserInformation.route){
             UserInformation(navController)
+        }
+        composable(Screen.VerificationScreen.route){
+            VerificationScreen(navController)
         }
 
     }

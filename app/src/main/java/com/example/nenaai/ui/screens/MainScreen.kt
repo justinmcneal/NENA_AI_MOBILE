@@ -31,12 +31,13 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.example.nenaai.data.model.NavItem
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen() {
+fun MainScreen(navController: NavController) {
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     var selectedTab by remember { mutableStateOf("home") }
@@ -101,7 +102,7 @@ fun MainScreen() {
             ) {
                 when (selectedTab) {
                     "home" -> HomeScreen()
-                    "profile" -> ProfileScreen()
+                    "profile" -> ProfileScreen(navController)
                     else -> Text("Unknown Tab")
                 }
             }
