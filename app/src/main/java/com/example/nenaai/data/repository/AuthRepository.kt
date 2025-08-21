@@ -45,8 +45,8 @@ class AuthRepository @Inject constructor(private val apiService: ApiService) {
         return handleApiResponse(response)
     }
 
-    suspend fun resendOTP(phoneNumber: String) : AuthResponse {
-        val request = ResendOTPRequest(phoneNumber)
+    suspend fun resendOTP(phoneNumber: String, otpCode: String) : AuthResponse {
+        val request = ResendOTPRequest(phoneNumber, otpCode)
         Log.d("AuthRepository", "Sending resend OTP request: $request")
         val response = apiService.resendOTP(request)
         return handleApiResponse(response)

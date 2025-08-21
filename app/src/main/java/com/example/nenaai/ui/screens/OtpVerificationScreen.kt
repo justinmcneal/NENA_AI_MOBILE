@@ -21,6 +21,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton // Added import for TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -38,6 +39,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavController // Added import for NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.nenaai.ui.components.CommonSnackbar
 import com.example.nenaai.ui.theme.NENA_AI_MOBILETheme
 import com.example.nenaai.viewmodel.AuthViewModel
@@ -46,7 +49,7 @@ import com.example.nenaai.viewmodel.OneTimeEvent
 import kotlinx.coroutines.launch
 
 @Composable
-fun OtpVerificationScreen(authViewModel: AuthViewModel = hiltViewModel()) {
+fun OtpVerificationScreen(navController: NavController, authViewModel: AuthViewModel = hiltViewModel()) { // Added navController parameter
     var otpInput by remember { mutableStateOf("") }
     val authState by authViewModel.authState.collectAsStateWithLifecycle()
     val phoneNumber by authViewModel.phoneNumber.collectAsStateWithLifecycle()
@@ -154,7 +157,7 @@ fun OtpVerificationScreen(authViewModel: AuthViewModel = hiltViewModel()) {
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(
-            onClick = { authViewModel.resendOTP(phoneNumber) },
+            onClick = { authViewModel.resendOTP(phoneNumber, otpInput) },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp),
@@ -175,6 +178,21 @@ fun OtpVerificationScreen(authViewModel: AuthViewModel = hiltViewModel()) {
                 )
             }
         }
+        Spacer(modifier = Modifier.height(16.dp))
+
+        TextButton(
+            onClick = {
+                authViewModel.clearPhoneNumber()
+                navController.popBackStack()
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(
+                "Change Number",
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.primary
+            )
+        }
     }
     CommonSnackbar(snackbarHostState = snackbarHostState)
 }
@@ -183,6 +201,7 @@ fun OtpVerificationScreen(authViewModel: AuthViewModel = hiltViewModel()) {
 @Composable
 fun OtpVerificationScreenPreview() {
     NENA_AI_MOBILETheme {
-        OtpVerificationScreen() 
+        // NavController is required for preview, but we can pass a dummy one
+        OtpVerificationScreen(navController = rememberNavController()) 
     }
 }

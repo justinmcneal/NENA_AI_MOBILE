@@ -25,7 +25,8 @@ data class LoginWithPINRequest(
 )
 
 data class ResendOTPRequest(
-    val phone_number: String
+    val phone_number: String,
+    val otp_code: String = "" // Added otp_code with a default empty string
 )
 
 data class AuthResponse(

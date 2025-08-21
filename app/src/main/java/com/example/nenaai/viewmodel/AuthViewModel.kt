@@ -42,20 +42,26 @@ class AuthViewModel @Inject constructor(
         _authState.value = AuthState.Idle
     }
 
+    fun clearPhoneNumber() { // ADDED THIS FUNCTION
+        _phoneNumber.value = ""
+    }
+
     fun registerUser(phoneNumber: String) {
         viewModelScope.launch {
             _authState.value = AuthState.Loading
+            setFullPhoneNumber(phoneNumber) // Moved here
             Log.d("AuthViewModel", "Registering user with phone number: $phoneNumber")
             try {
                 val response = repository.registerUser(phoneNumber)
-                // Store the full phone number after successful registration
-                setFullPhoneNumber(phoneNumber)
                 tokenManager.saveAuthFlowState(TokenManager.KEY_OTP_SENT, true) // Save OTP sent state
                 _oneTimeEvent.emit(OneTimeEvent.Success(response))
+                _authState.value = AuthState.Idle
             } catch (e: BackendException) {
                 _oneTimeEvent.emit(OneTimeEvent.Error(e.message ?: "Backend error occurred"))
+                _authState.value = AuthState.Idle
             } catch (e: Exception) {
                 _oneTimeEvent.emit(OneTimeEvent.Error(e.message ?: "An unexpected error occurred"))
+                _authState.value = AuthState.Idle
             }
         }
     }
@@ -68,26 +74,32 @@ class AuthViewModel @Inject constructor(
                 response.access?.let { tokenManager.saveToken(it) }
                 tokenManager.saveAuthFlowState(TokenManager.KEY_OTP_VERIFIED, true) // Save OTP verified state
                 _oneTimeEvent.emit(OneTimeEvent.Success(response))
+                _authState.value = AuthState.Idle
             } catch (e: BackendException) {
                 _oneTimeEvent.emit(OneTimeEvent.Error(e.message ?: "Backend error occurred"))
+                _authState.value = AuthState.Idle
             } catch (e: Exception) {
                 _oneTimeEvent.emit(OneTimeEvent.Error(e.message ?: "An unexpected error occurred"))
+                _authState.value = AuthState.Idle
             }
         }
     }
 
-    fun resendOTP(phoneNumber: String) {
+    fun resendOTP(phoneNumber: String, otpCode: String = "") {
         viewModelScope.launch {
             _authState.value = AuthState.Loading
             Log.d("AuthViewModel", "Resending OTP for phone number: $phoneNumber")
             try {
-                val response = repository.resendOTP(phoneNumber)
+                val response = repository.resendOTP(phoneNumber, otpCode)
                 tokenManager.saveAuthFlowState(TokenManager.KEY_OTP_SENT, true) // Save OTP sent state again
                 _oneTimeEvent.emit(OneTimeEvent.Success(response))
+                _authState.value = AuthState.Idle
             } catch (e: BackendException) {
                 _oneTimeEvent.emit(OneTimeEvent.Error(e.message ?: "Backend error occurred"))
+                _authState.value = AuthState.Idle
             } catch (e: Exception) {
                 _oneTimeEvent.emit(OneTimeEvent.Error(e.message ?: "An unexpected error occurred"))
+                _authState.value = AuthState.Idle
             }
         }
     }
@@ -99,10 +111,13 @@ class AuthViewModel @Inject constructor(
                 val response = repository.completeProfile(firstName, middleName, lastName)
                 tokenManager.saveAuthFlowState(TokenManager.KEY_PROFILE_COMPLETE, true) // Save profile complete state
                 _oneTimeEvent.emit(OneTimeEvent.Success(response))
+                _authState.value = AuthState.Idle
             } catch (e: BackendException) {
                 _oneTimeEvent.emit(OneTimeEvent.Error(e.message ?: "Backend error occurred"))
+                _authState.value = AuthState.Idle
             } catch (e: Exception) {
                 _oneTimeEvent.emit(OneTimeEvent.Error(e.message ?: "An unexpected error occurred"))
+                _authState.value = AuthState.Idle
             }
         }
     }
@@ -116,10 +131,13 @@ class AuthViewModel @Inject constructor(
                 // On successful login, clear all previous auth flow states as the user is now logged in
                 tokenManager.clearAuthFlowState()
                 _oneTimeEvent.emit(OneTimeEvent.Success(response))
+                _authState.value = AuthState.Idle
             } catch (e: BackendException) {
                 _oneTimeEvent.emit(OneTimeEvent.Error(e.message ?: "Backend error occurred"))
+                _authState.value = AuthState.Idle
             } catch (e: Exception) {
                 _oneTimeEvent.emit(OneTimeEvent.Error(e.message ?: "An unexpected error occurred"))
+                _authState.value = AuthState.Idle
             }
         }
     }
