@@ -17,12 +17,14 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -32,9 +34,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.nenaai.ui.components.CommonSnackbar
 import com.example.nenaai.ui.theme.NENA_AI_MOBILETheme
 import com.example.nenaai.viewmodel.AuthViewModel
 import com.example.nenaai.viewmodel.AuthState
+import kotlinx.coroutines.launch
 
 @Composable
 fun ProfileCompletionScreen(onProfileComplete: () -> Unit, authViewModel: AuthViewModel = hiltViewModel()) {
@@ -43,15 +47,32 @@ fun ProfileCompletionScreen(onProfileComplete: () -> Unit, authViewModel: AuthVi
     var lastName by remember { mutableStateOf("") }
 
     val authState by authViewModel.authState.collectAsStateWithLifecycle()
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
 
     LaunchedEffect(authState) {
         when (authState) {
             is AuthState.Success -> {
+                scope.launch {
+                    snackbarHostState.showSnackbar(
+                        message = (authState as AuthState.Success).authResponse.message,
+                        withDismissAction = true
+                    )
+                }
                 // Check if the success is for profile completion
                 if ((authState as AuthState.Success).authResponse.user_status == "PROFILE_COMPLETE") {
                     onProfileComplete()
                     authViewModel.resetAuthState()
                 }
+            }
+            is AuthState.Error -> {
+                scope.launch {
+                    snackbarHostState.showSnackbar(
+                        message = (authState as AuthState.Error).message,
+                        withDismissAction = true
+                    )
+                }
+                authViewModel.resetAuthState() // Reset state after displaying error
             }
             else -> { /* Handle other states or do nothing */ }
         }
@@ -117,17 +138,6 @@ fun ProfileCompletionScreen(onProfileComplete: () -> Unit, authViewModel: AuthVi
         )
         Spacer(modifier = Modifier.height(24.dp))
 
-        if (authState is AuthState.Error) {
-            Text(
-                text = (authState as AuthState.Error).message,
-                color = MaterialTheme.colorScheme.error,
-                style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 8.dp),
-                textAlign = TextAlign.Start
-            )
-        }
         Spacer(modifier = Modifier.height(24.dp))
 
         Button(
@@ -153,6 +163,7 @@ fun ProfileCompletionScreen(onProfileComplete: () -> Unit, authViewModel: AuthVi
             }
         }
     }
+    CommonSnackbar(snackbarHostState = snackbarHostState)
 }
 
 @Preview(showBackground = true)

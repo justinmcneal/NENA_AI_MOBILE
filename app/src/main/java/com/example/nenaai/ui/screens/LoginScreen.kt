@@ -18,10 +18,15 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -31,20 +36,39 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.nenaai.ui.components.CommonSnackbar
 import com.example.nenaai.ui.theme.NENA_AI_MOBILETheme
 import com.example.nenaai.viewmodel.AuthViewModel
 import com.example.nenaai.viewmodel.AuthState
+import kotlinx.coroutines.launch
 
 @Composable
 fun LoginScreen(onOtpSent: () -> Unit, authViewModel: AuthViewModel = hiltViewModel()) {
     val authState by authViewModel.authState.collectAsStateWithLifecycle()
-    val phoneNumber by authViewModel.phoneNumber.collectAsStateWithLifecycle()
+    var textInput by remember { mutableStateOf("") } // Local state for raw input
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
 
     LaunchedEffect(authState) {
         when (authState) {
             is AuthState.Success -> {
+                scope.launch {
+                    snackbarHostState.showSnackbar(
+                        message = (authState as AuthState.Success).authResponse.message,
+                        withDismissAction = true
+                    )
+                }
                 onOtpSent()
                 authViewModel.resetAuthState() // Reset state after navigation
+            }
+            is AuthState.Error -> {
+                scope.launch {
+                    snackbarHostState.showSnackbar(
+                        message = (authState as AuthState.Error).message,
+                        withDismissAction = true
+                    )
+                }
+                authViewModel.resetAuthState() // Reset state after displaying error
             }
             else -> { /* Handle other states or do nothing */ }
         }
@@ -57,7 +81,6 @@ fun LoginScreen(onOtpSent: () -> Unit, authViewModel: AuthViewModel = hiltViewMo
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // App Logo/Illustration (replace with your actual logo)
         Icon(
             Icons.Default.Phone,
             contentDescription = "App Logo",
@@ -85,16 +108,18 @@ fun LoginScreen(onOtpSent: () -> Unit, authViewModel: AuthViewModel = hiltViewMo
         Spacer(modifier = Modifier.height(32.dp))
 
         OutlinedTextField(
-            value = phoneNumber,
+            value = textInput,
             onValueChange = { newValue ->
-                if (newValue.length <= 10) {
-                    authViewModel.setPhoneNumber(newValue)
+                // Only allow digits and limit to 10 characters
+                if (newValue.all { it.isDigit() } && newValue.length <= 10) {
+                    textInput = newValue
+                    authViewModel.setPhoneNumber(newValue) // Update ViewModel's phoneNumber
                 }
             },
             label = { Text("Mobile Number") },
             placeholder = { Text("e.g., 9123456789") },
             leadingIcon = {
-                Icon(Icons.Default.Phone, contentDescription = "Phone Icon")
+                Text("+63 ", style = MaterialTheme.typography.bodyLarge)
             },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
             modifier = Modifier.fillMaxWidth(),
@@ -102,23 +127,21 @@ fun LoginScreen(onOtpSent: () -> Unit, authViewModel: AuthViewModel = hiltViewMo
             shape = RoundedCornerShape(12.dp)
         )
 
-        // Error message handling
-        if (authState is AuthState.Error) {
-            Text(
-                text = (authState as AuthState.Error).message,
-                color = MaterialTheme.colorScheme.error,
-                style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 8.dp),
-                textAlign = TextAlign.Start
-            )
-        }
         Spacer(modifier = Modifier.height(24.dp))
 
         Button(
             onClick = {
-                authViewModel.registerUser(phoneNumber)
+                if (textInput.length == 10) {
+                    val fullPhoneNumber = "+63" + textInput
+                    authViewModel.registerUser(fullPhoneNumber)
+                } else {
+                    scope.launch {
+                        snackbarHostState.showSnackbar(
+                            message = "Please enter a valid 10-digit mobile number.",
+                            withDismissAction = true
+                        )
+                    }
+                }
             },
             modifier = Modifier
                 .fillMaxWidth()
@@ -141,6 +164,7 @@ fun LoginScreen(onOtpSent: () -> Unit, authViewModel: AuthViewModel = hiltViewMo
             }
         }
     }
+    CommonSnackbar(snackbarHostState = snackbarHostState)
 }
 
 @Preview(showBackground = true)

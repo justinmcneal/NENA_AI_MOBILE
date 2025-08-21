@@ -1,5 +1,6 @@
 package com.example.nenaai.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.nenaai.data.repository.AuthRepository
@@ -34,6 +35,7 @@ class AuthViewModel @Inject constructor(
     fun registerUser(phoneNumber: String) {
         viewModelScope.launch {
             _authState.value = AuthState.Loading
+            Log.d("AuthViewModel", "Registering user with phone number: $phoneNumber")
             try {
                 val response = repository.registerUser(phoneNumber)
                 _authState.value = AuthState.Success(response)

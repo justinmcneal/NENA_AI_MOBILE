@@ -1,5 +1,6 @@
 package com.example.nenaai.data.repository
 
+import android.util.Log
 import com.example.nenaai.data.network.ApiService
 import com.example.nenaai.data.model.dto.LoginWithPINRequest
 import com.example.nenaai.data.model.dto.OTPVerificationRequest
@@ -10,7 +11,11 @@ import javax.inject.Inject
 
 class AuthRepository @Inject constructor(private val apiService: ApiService) {
 
-    suspend fun registerUser(phoneNumber: String) = apiService.registerUser(UserRegistrationRequest(phoneNumber))
+    suspend fun registerUser(phoneNumber: String) : com.example.nenaai.data.model.dto.AuthResponse {
+        val request = UserRegistrationRequest(phoneNumber)
+        Log.d("AuthRepository", "Sending registration request: $request")
+        return apiService.registerUser(request)
+    }
 
     suspend fun verifyOTP(phoneNumber: String, otp: String) = apiService.verifyOTP(OTPVerificationRequest(phoneNumber, otp))
 
