@@ -94,21 +94,7 @@ class AuthViewModel @Inject constructor(
         }
     }
 
-    fun setPIN(pin: String) {
-        viewModelScope.launch {
-            _authState.value = AuthState.Loading
-            try {
-                val response = repository.setPIN(pin)
-                _oneTimeEvent.emit(OneTimeEvent.Success(response))
-            } catch (e: BackendException) {
-                _oneTimeEvent.emit(OneTimeEvent.Error(e.message ?: "Backend error occurred"))
-            } catch (e: Exception) {
-                _oneTimeEvent.emit(OneTimeEvent.Error(e.message ?: "An unexpected error occurred"))
-            } finally {
-                _authState.value = AuthState.Idle
-            }
-        }
-    }
+    
 
     fun loginWithPIN(phoneNumber: String, pin: String) {
         viewModelScope.launch {
