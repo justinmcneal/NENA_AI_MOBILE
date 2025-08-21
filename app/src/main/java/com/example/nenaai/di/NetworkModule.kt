@@ -16,9 +16,7 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
 
-    import com.example.nenaai.BuildConfig
-
-    private const val BASE_URL = BuildConfig.BASE_URL
+    private const val BASE_URL = "http://192.168.1.104:8000/api/users/"
 
     @Provides
     @Singleton
