@@ -6,22 +6,23 @@ import com.example.nenaai.data.model.dto.OTPVerificationRequest
 import com.example.nenaai.data.model.dto.ProfileCompletionRequest
 import com.example.nenaai.data.model.dto.SetPINRequest
 import com.example.nenaai.data.model.dto.UserRegistrationRequest
+import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.POST
 
 interface ApiService {
     @POST("register/")
-    suspend fun registerUser(@Body request: UserRegistrationRequest): AuthResponse
+    suspend fun registerUser(@Body request: UserRegistrationRequest): Response<AuthResponse>
 
     @POST("verify-otp/")
-    suspend fun verifyOTP(@Body request: OTPVerificationRequest): AuthResponse
+    suspend fun verifyOTP(@Body request: OTPVerificationRequest): Response<AuthResponse>
 
     @POST("complete-profile/")
-    suspend fun completeProfile(@Body request: ProfileCompletionRequest): AuthResponse
+    suspend fun completeProfile(@Body request: ProfileCompletionRequest): Response<AuthResponse>
 
     @POST("set-pin/")
-    suspend fun setPIN(@Body request: SetPINRequest): AuthResponse
+    suspend fun setPIN(@Body request: SetPINRequest): Response<AuthResponse>
 
     @POST("login-with-pin/")
-    suspend fun loginWithPIN(@Body request: LoginWithPINRequest): AuthResponse
+    suspend fun loginWithPIN(@Body request: LoginWithPINRequest): Response<AuthResponse>
 }
