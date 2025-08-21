@@ -31,7 +31,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.example.nenaai.data.model.User
+import com.example.nenaai.data.model.dto.User
 import com.example.nenaai.navigation.Screen
 import com.example.nenaai.ui.components.CommonSnackbar
 import com.example.nenaai.viewmodel.ProfileViewModel

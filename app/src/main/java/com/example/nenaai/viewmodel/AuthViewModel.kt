@@ -5,7 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.nenaai.data.repository.AuthRepository
 import com.example.nenaai.data.local.TokenManager
-import com.example.nenaai.data.model.AuthResponse
+import com.example.nenaai.data.model.dto.AuthResponse
 import com.example.nenaai.data.network.BackendException
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
