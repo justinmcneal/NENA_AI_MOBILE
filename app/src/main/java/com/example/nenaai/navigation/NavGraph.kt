@@ -11,7 +11,6 @@ import com.example.nenaai.ui.screens.MainScreen
 import com.example.nenaai.ui.screens.OtpVerificationScreen
 import com.example.nenaai.ui.screens.ProfileCompletionScreen
 import com.example.nenaai.ui.screens.SetPinScreen
-import com.example.nenaai.ui.screens.UserInformation
 import com.example.nenaai.ui.screens.VerificationScreen
 import com.example.nenaai.viewmodel.AuthViewModel
 import com.example.nenaai.viewmodel.OneTimeEvent
@@ -82,9 +81,6 @@ fun NavGraph() {
         }
         composable(Screen.Main.route) {
             MainScreen(navController)
-        }
-        composable(Screen.UserInformation.route){
-            UserInformation(navController)
         }
         composable(Screen.VerificationScreen.route){
             VerificationScreen(navController)
