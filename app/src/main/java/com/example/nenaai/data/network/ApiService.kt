@@ -1,11 +1,11 @@
 package com.example.nenaai.data.network
 
-import com.example.nenaai.data.model.dto.AuthResponse
-import com.example.nenaai.data.model.dto.LoginWithPINRequest
-import com.example.nenaai.data.model.dto.OTPVerificationRequest
-import com.example.nenaai.data.model.dto.ProfileCompletionRequest
-import com.example.nenaai.data.model.dto.SetPINRequest
-import com.example.nenaai.data.model.dto.UserRegistrationRequest
+import com.example.nenaai.data.model.AuthResponse
+import com.example.nenaai.data.model.LoginWithPINRequest
+import com.example.nenaai.data.model.OTPVerificationRequest
+import com.example.nenaai.data.model.ProfileCompletionRequest
+import com.example.nenaai.data.model.SetPINRequest
+import com.example.nenaai.data.model.UserRegistrationRequest
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.POST
