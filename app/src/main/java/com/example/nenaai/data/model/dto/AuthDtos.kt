@@ -38,3 +38,11 @@ data class User(
     val last_name: String,
     val verification_status: String
 )
+
+data class BackendErrorResponse(
+    val phone_number: List<String>? = null,
+    val detail: String? = null,
+    // Add other potential error fields here if your backend returns them
+    // e.g., val email: List<String>? = null,
+    // val non_field_errors: List<String>? = null
+)

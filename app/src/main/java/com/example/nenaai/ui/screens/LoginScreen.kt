@@ -40,6 +40,7 @@ import com.example.nenaai.ui.components.CommonSnackbar
 import com.example.nenaai.ui.theme.NENA_AI_MOBILETheme
 import com.example.nenaai.viewmodel.AuthViewModel
 import com.example.nenaai.viewmodel.AuthState
+import com.example.nenaai.viewmodel.OneTimeEvent
 import kotlinx.coroutines.launch
 
 @Composable
@@ -49,28 +50,27 @@ fun LoginScreen(onOtpSent: () -> Unit, authViewModel: AuthViewModel = hiltViewMo
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
-    LaunchedEffect(authState) {
-        when (authState) {
-            is AuthState.Success -> {
-                scope.launch {
-                    snackbarHostState.showSnackbar(
-                        message = (authState as AuthState.Success).authResponse.message,
-                        withDismissAction = true
-                    )
+    LaunchedEffect(Unit) { // Observe oneTimeEvent
+        authViewModel.oneTimeEvent.collect { event ->
+            when (event) {
+                is OneTimeEvent.Success -> {
+                    scope.launch {
+                        snackbarHostState.showSnackbar(
+                            message = event.authResponse.message,
+                            withDismissAction = true
+                        )
+                    }
+                    onOtpSent()
                 }
-                onOtpSent()
-                authViewModel.resetAuthState() // Reset state after navigation
-            }
-            is AuthState.Error -> {
-                scope.launch {
-                    snackbarHostState.showSnackbar(
-                        message = (authState as AuthState.Error).message,
-                        withDismissAction = true
-                    )
+                is OneTimeEvent.Error -> {
+                    scope.launch {
+                        snackbarHostState.showSnackbar(
+                            message = event.message,
+                            withDismissAction = true
+                        )
+                    }
                 }
-                authViewModel.resetAuthState() // Reset state after displaying error
             }
-            else -> { /* Handle other states or do nothing */ }
         }
     }
 
@@ -110,10 +110,9 @@ fun LoginScreen(onOtpSent: () -> Unit, authViewModel: AuthViewModel = hiltViewMo
         OutlinedTextField(
             value = textInput,
             onValueChange = { newValue ->
-                // Only allow digits and limit to 10 characters
                 if (newValue.all { it.isDigit() } && newValue.length <= 10) {
                     textInput = newValue
-                    authViewModel.setPhoneNumber(newValue) // Update ViewModel's phoneNumber
+                    authViewModel.setPhoneNumber(newValue)
                 }
             },
             label = { Text("Mobile Number") },
@@ -123,7 +122,7 @@ fun LoginScreen(onOtpSent: () -> Unit, authViewModel: AuthViewModel = hiltViewMo
             },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
             modifier = Modifier.fillMaxWidth(),
-            isError = authState is AuthState.Error, // Use authState for error
+            // isError = authState is AuthState.Error, // Removed as error is handled by Snackbar
             shape = RoundedCornerShape(12.dp)
         )
 

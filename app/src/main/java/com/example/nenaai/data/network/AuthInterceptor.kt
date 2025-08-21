@@ -8,11 +8,22 @@ import javax.inject.Inject
 class AuthInterceptor @Inject constructor(private val tokenManager: TokenManager) : Interceptor {
 
     override fun intercept(chain: Interceptor.Chain): Response {
-        val requestBuilder = chain.request().newBuilder()
+        val originalRequest = chain.request()
+        val requestBuilder = originalRequest.newBuilder()
 
-        // If token has been saved, add it to the request
-        tokenManager.getToken()?.let {
-            requestBuilder.addHeader("Authorization", "Bearer $it")
+        val publicEndpoints = listOf(
+            "register/",
+            "verify-otp/",
+            "login-with-pin/"
+        )
+
+        val isPublicEndpoint = publicEndpoints.any { originalRequest.url.encodedPath.contains(it) }
+
+        // Only add Authorization header if it's not a public endpoint
+        if (!isPublicEndpoint) {
+            tokenManager.getToken()?.let {
+                requestBuilder.addHeader("Authorization", "Bearer $it")
+            }
         }
 
         return chain.proceed(requestBuilder.build())

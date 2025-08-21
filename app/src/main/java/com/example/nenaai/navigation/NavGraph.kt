@@ -1,5 +1,6 @@
 package com.example.nenaai.navigation
 
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -9,39 +10,47 @@ import com.example.nenaai.ui.screens.LoginScreen
 import com.example.nenaai.ui.screens.MainScreen
 import com.example.nenaai.ui.screens.OtpVerificationScreen
 import com.example.nenaai.ui.screens.ProfileCompletionScreen
+import com.example.nenaai.ui.screens.SetPinScreen
 import com.example.nenaai.ui.screens.UserInformation
 import com.example.nenaai.ui.screens.VerificationScreen
 import com.example.nenaai.viewmodel.AuthViewModel
-import com.example.nenaai.viewmodel.AuthState
+import com.example.nenaai.viewmodel.OneTimeEvent
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 @Composable
 fun NavGraph() {
     val navController = rememberNavController()
     val authViewModel: AuthViewModel = hiltViewModel()
-    val authState by authViewModel.authState.collectAsStateWithLifecycle()
 
-    LaunchedEffect(authState) {
-        when (authState) {
-            is AuthState.Success -> {
-                when ((authState as AuthState.Success).authResponse.user_status) {
-                    "OTP_VERIFIED" -> {
-                        navController.navigate(Screen.ProfileCompletion.route) {
-                            popUpTo(Screen.Login.route) { inclusive = true }
+    LaunchedEffect(Unit) { // Observe oneTimeEvent for navigation
+        authViewModel.oneTimeEvent.collect { event ->
+            Log.d("NavGraph", "Received OneTimeEvent: $event")
+            when (event) {
+                is OneTimeEvent.Success -> {
+                    Log.d("NavGraph", "OneTimeEvent.Success with user_status: ${event.authResponse.user_status}")
+                    when (event.authResponse.user_status) {
+                        "OTP_VERIFIED" -> {
+                            Log.d("NavGraph", "Navigating to ProfileCompletionScreen")
+                            navController.navigate(Screen.ProfileCompletion.route) {
+                                popUpTo(Screen.Login.route) { inclusive = true }
+                            }
+                        }
+                        "PROFILE_COMPLETE" -> {
+                            Log.d("NavGraph", "Navigating to MainScreen")
+                            navController.navigate(Screen.Main.route) {
+                                popUpTo(Screen.Login.route) { inclusive = true }
+                            }
+                        }
+                        else -> {
+                            Log.d("NavGraph", "Unhandled user_status: ${event.authResponse.user_status}")
                         }
                     }
-                    "PROFILE_COMPLETE" -> {
-                        navController.navigate(Screen.Main.route) {
-                            popUpTo(Screen.Login.route) { inclusive = true }
-                        }
-                    }
-                    else -> { /* Handle other statuses or do nothing */ }
                 }
-                authViewModel.resetAuthState() // Reset state after navigation
+                is OneTimeEvent.Error -> {
+                    Log.d("NavGraph", "OneTimeEvent.Error: ${event.message}")
+                    // Error handled by individual screens via Snackbar
+                }
             }
-            else -> { /* Handle other states or do nothing */ }
         }
     }
 
@@ -51,18 +60,25 @@ fun NavGraph() {
     ) {
         composable(Screen.Login.route) {
             LoginScreen(onOtpSent = {
-                // Navigation is now handled by LaunchedEffect observing authState
+                navController.navigate(Screen.OtpVerification.route) // Navigate to OTP verification
             }, authViewModel = authViewModel)
         }
         composable(Screen.OtpVerification.route) {
             OtpVerificationScreen(onVerificationSuccess = {
-                // Navigation is now handled by LaunchedEffect observing authState
+                // Navigation after OTP verification is handled by the LaunchedEffect in NavGraph
+                // based on user_status (PROFILE_COMPLETE or OTP_VERIFIED leading to ProfileCompletionScreen)
             }, authViewModel = authViewModel)
         }
         composable(Screen.ProfileCompletion.route) {
             ProfileCompletionScreen(onProfileComplete = {
-                // Navigation is now handled by LaunchedEffect observing authState
+                // Navigation after profile completion is handled by the LaunchedEffect in NavGraph
+                // based on user_status (PROFILE_COMPLETE leading to MainScreen)
             }, authViewModel = authViewModel)
+        }
+        composable(Screen.SetPin.route) {
+            SetPinScreen(onPinSetSuccess = {
+                navController.popBackStack() // Go back to previous screen (ProfileScreen)
+            })
         }
         composable(Screen.Main.route) {
             MainScreen(navController)

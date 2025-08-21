@@ -42,6 +42,7 @@ import com.example.nenaai.ui.components.CommonSnackbar
 import com.example.nenaai.ui.theme.NENA_AI_MOBILETheme
 import com.example.nenaai.viewmodel.AuthViewModel
 import com.example.nenaai.viewmodel.AuthState
+import com.example.nenaai.viewmodel.OneTimeEvent
 import kotlinx.coroutines.launch
 
 @Composable
@@ -52,28 +53,27 @@ fun OtpVerificationScreen(onVerificationSuccess: () -> Unit, authViewModel: Auth
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
-    LaunchedEffect(authState) {
-        when (authState) {
-            is AuthState.Success -> {
-                scope.launch {
-                    snackbarHostState.showSnackbar(
-                        message = (authState as AuthState.Success).authResponse.message,
-                        withDismissAction = true
-                    )
+    LaunchedEffect(Unit) { // Observe oneTimeEvent
+        authViewModel.oneTimeEvent.collect { event ->
+            when (event) {
+                is OneTimeEvent.Success -> {
+                    scope.launch {
+                        snackbarHostState.showSnackbar(
+                            message = event.authResponse.message,
+                            withDismissAction = true
+                        )
+                    }
+                    // onVerificationSuccess() // Removed: Navigation handled by NavGraph
                 }
-                onVerificationSuccess()
-                authViewModel.resetAuthState() // Reset state after navigation
-            }
-            is AuthState.Error -> {
-                scope.launch {
-                    snackbarHostState.showSnackbar(
-                        message = (authState as AuthState.Error).message,
-                        withDismissAction = true
-                    )
+                is OneTimeEvent.Error -> {
+                    scope.launch {
+                        snackbarHostState.showSnackbar(
+                            message = event.message,
+                            withDismissAction = true
+                        )
+                    }
                 }
-                authViewModel.resetAuthState() // Reset state after displaying error
             }
-            else -> { /* Handle other states or do nothing */ }
         }
     }
 
@@ -124,7 +124,6 @@ fun OtpVerificationScreen(onVerificationSuccess: () -> Unit, authViewModel: Auth
             },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
             modifier = Modifier.fillMaxWidth(),
-            isError = authState is AuthState.Error,
             shape = RoundedCornerShape(12.dp)
         )
 

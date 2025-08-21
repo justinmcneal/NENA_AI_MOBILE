@@ -6,8 +6,11 @@ import androidx.lifecycle.viewModelScope
 import com.example.nenaai.data.repository.AuthRepository
 import com.example.nenaai.data.local.TokenManager
 import com.example.nenaai.data.model.dto.AuthResponse
+import com.example.nenaai.data.network.BackendException
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -24,8 +27,15 @@ class AuthViewModel @Inject constructor(
     private val _phoneNumber = MutableStateFlow("")
     val phoneNumber: StateFlow<String> = _phoneNumber
 
+    private val _oneTimeEvent = MutableSharedFlow<OneTimeEvent>()
+    val oneTimeEvent: SharedFlow<OneTimeEvent> = _oneTimeEvent
+
     fun setPhoneNumber(newValue: String) {
         _phoneNumber.value = newValue
+    }
+
+    fun setFullPhoneNumber(fullNumber: String) {
+        _phoneNumber.value = fullNumber
     }
 
     fun resetAuthState() {
@@ -38,9 +48,15 @@ class AuthViewModel @Inject constructor(
             Log.d("AuthViewModel", "Registering user with phone number: $phoneNumber")
             try {
                 val response = repository.registerUser(phoneNumber)
-                _authState.value = AuthState.Success(response)
+                // Store the full phone number after successful registration
+                setFullPhoneNumber(phoneNumber)
+                _oneTimeEvent.emit(OneTimeEvent.Success(response))
+            } catch (e: BackendException) {
+                _oneTimeEvent.emit(OneTimeEvent.Error(e.message ?: "Backend error occurred"))
             } catch (e: Exception) {
-                _authState.value = AuthState.Error(e.message ?: "An error occurred")
+                _oneTimeEvent.emit(OneTimeEvent.Error(e.message ?: "An unexpected error occurred"))
+            } finally {
+                _authState.value = AuthState.Idle // Reset loading state
             }
         }
     }
@@ -51,9 +67,13 @@ class AuthViewModel @Inject constructor(
             try {
                 val response = repository.verifyOTP(phoneNumber, otp)
                 response.access?.let { tokenManager.saveToken(it) }
-                _authState.value = AuthState.Success(response)
+                _oneTimeEvent.emit(OneTimeEvent.Success(response))
+            } catch (e: BackendException) {
+                _oneTimeEvent.emit(OneTimeEvent.Error(e.message ?: "Backend error occurred"))
             } catch (e: Exception) {
-                _authState.value = AuthState.Error(e.message ?: "An error occurred")
+                _oneTimeEvent.emit(OneTimeEvent.Error(e.message ?: "An unexpected error occurred"))
+            } finally {
+                _authState.value = AuthState.Idle
             }
         }
     }
@@ -63,9 +83,13 @@ class AuthViewModel @Inject constructor(
             _authState.value = AuthState.Loading
             try {
                 val response = repository.completeProfile(firstName, middleName, lastName)
-                _authState.value = AuthState.Success(response)
+                _oneTimeEvent.emit(OneTimeEvent.Success(response))
+            } catch (e: BackendException) {
+                _oneTimeEvent.emit(OneTimeEvent.Error(e.message ?: "Backend error occurred"))
             } catch (e: Exception) {
-                _authState.value = AuthState.Error(e.message ?: "An error occurred")
+                _oneTimeEvent.emit(OneTimeEvent.Error(e.message ?: "An unexpected error occurred"))
+            } finally {
+                _authState.value = AuthState.Idle
             }
         }
     }
@@ -75,9 +99,13 @@ class AuthViewModel @Inject constructor(
             _authState.value = AuthState.Loading
             try {
                 val response = repository.setPIN(pin)
-                _authState.value = AuthState.Success(response)
+                _oneTimeEvent.emit(OneTimeEvent.Success(response))
+            } catch (e: BackendException) {
+                _oneTimeEvent.emit(OneTimeEvent.Error(e.message ?: "Backend error occurred"))
             } catch (e: Exception) {
-                _authState.value = AuthState.Error(e.message ?: "An error occurred")
+                _oneTimeEvent.emit(OneTimeEvent.Error(e.message ?: "An unexpected error occurred"))
+            } finally {
+                _authState.value = AuthState.Idle
             }
         }
     }
@@ -88,9 +116,13 @@ class AuthViewModel @Inject constructor(
             try {
                 val response = repository.loginWithPIN(phoneNumber, pin)
                 response.access?.let { tokenManager.saveToken(it) }
-                _authState.value = AuthState.Success(response)
+                _oneTimeEvent.emit(OneTimeEvent.Success(response))
+            } catch (e: BackendException) {
+                _oneTimeEvent.emit(OneTimeEvent.Error(e.message ?: "Backend error occurred"))
             } catch (e: Exception) {
-                _authState.value = AuthState.Error(e.message ?: "An error occurred")
+                _oneTimeEvent.emit(OneTimeEvent.Error(e.message ?: "An unexpected error occurred"))
+            } finally {
+                _authState.value = AuthState.Idle
             }
         }
     }
@@ -99,6 +131,10 @@ class AuthViewModel @Inject constructor(
 sealed class AuthState {
     object Idle : AuthState()
     object Loading : AuthState()
-    data class Success(val authResponse: AuthResponse) : AuthState()
-    data class Error(val message: String) : AuthState()
+    // Success and Error states are now handled by OneTimeEvent
+}
+
+sealed class OneTimeEvent {
+    data class Success(val authResponse: AuthResponse) : OneTimeEvent()
+    data class Error(val message: String) : OneTimeEvent()
 }

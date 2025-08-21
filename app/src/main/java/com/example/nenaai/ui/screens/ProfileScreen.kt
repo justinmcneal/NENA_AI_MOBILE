@@ -16,8 +16,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -26,10 +29,27 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.nenaai.data.model.dto.User
+import com.example.nenaai.navigation.Screen
+import com.example.nenaai.ui.components.CommonSnackbar
+import com.example.nenaai.viewmodel.ProfileViewModel
 
 @Composable
-fun ProfileScreen(navController: NavController) {
+fun ProfileScreen(navController: NavController, profileViewModel: ProfileViewModel = hiltViewModel()) {
+    val userProfile by profileViewModel.userProfile.collectAsStateWithLifecycle()
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    // Placeholder user data for now. In a real app, this would be fetched from API.
+    val currentUser = userProfile ?: User(
+        phone_number = "+639123456789",
+        first_name = "John",
+        middle_name = "D.",
+        last_name = "Doe",
+        verification_status = "UNVERIFIED"
+    )
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -45,28 +65,31 @@ fun ProfileScreen(navController: NavController) {
         ) {
             Column {
                 Text(
-                    text = "Test T. Test",
+                    text = "${currentUser.first_name} ${currentUser.middle_name?.let { "$it " } ?: ""}${currentUser.last_name}",
                     color = Color.White,
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold
                 )
                 Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = "Unverified",
-                    color = Color.White,
-                    fontSize = 14.sp,
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(16.dp))
-                        .background(Color.Red)
-                        .padding(horizontal = 8.dp, vertical = 4.dp)
-                        .clickable {
-                            navController.navigate("verification"){
-                                popUpTo("verification"){
-                                    inclusive = true
+                if (currentUser.verification_status != "PROFILE_COMPLETE") {
+                    Text(
+                        text = currentUser.verification_status,
+                        color = Color.White,
+                        fontSize = 14.sp,
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(16.dp))
+                            .background(Color.Red)
+                            .padding(horizontal = 8.dp, vertical = 4.dp)
+                            .clickable {
+                                // Navigate to verification screen if needed
+                                navController.navigate("verification_screen"){
+                                    popUpTo("verification_screen"){
+                                        inclusive = true
+                                    }
                                 }
                             }
-                        }
-                )
+                    )
+                }
             }
         }
 
@@ -94,14 +117,14 @@ fun ProfileScreen(navController: NavController) {
                 color = Color.Gray
             )
             Text(
-                text = "Test T. Test for Integrity",
+                text = "${currentUser.first_name} ${currentUser.middle_name?.let { "$it " } ?: ""}${currentUser.last_name}",
                 fontSize = 16.sp
             )
         }
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Email
+        // Email (Placeholder for now)
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -109,7 +132,7 @@ fun ProfileScreen(navController: NavController) {
                 .padding(12.dp)
         ) {
             Text(
-                text = "rhyforemd@gmail.com",
+                text = "rhyforemd@gmail.com", // Placeholder
                 fontSize = 16.sp
             )
             Text(
@@ -129,13 +152,13 @@ fun ProfileScreen(navController: NavController) {
                 .padding(12.dp)
         ) {
             Text(
-                text = "546464",
-                fontSize = 16.sp
-            )
-            Text(
-                text = "Contact admin to update",
+                text = "Phone",
                 fontSize = 12.sp,
                 color = Color.Gray
+            )
+            Text(
+                text = currentUser.phone_number,
+                fontSize = 16.sp
             )
         }
 
@@ -146,6 +169,10 @@ fun ProfileScreen(navController: NavController) {
             modifier = Modifier
                 .fillMaxWidth()
                 .background(Color.LightGray.copy(alpha = 0.1f))
+                .clip(RoundedCornerShape(12.dp))
+                .clickable {
+                    navController.navigate(Screen.SetPin.route) // Navigate to SetPinScreen
+                }
                 .padding(12.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
@@ -171,5 +198,5 @@ fun ProfileScreen(navController: NavController) {
 
         // Assuming empty for now, as per image
     }
+    CommonSnackbar(snackbarHostState = snackbarHostState)
 }
-
