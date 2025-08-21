@@ -42,7 +42,7 @@ import com.example.nenaai.viewmodel.OneTimeEvent
 import kotlinx.coroutines.launch
 
 @Composable
-fun ProfileCompletionScreen(onProfileComplete: () -> Unit, authViewModel: AuthViewModel = hiltViewModel()) {
+fun ProfileCompletionScreen(authViewModel: AuthViewModel = hiltViewModel()) {
     var firstName by remember { mutableStateOf("") }
     var middleName by remember { mutableStateOf("") }
     var lastName by remember { mutableStateOf("") }
@@ -167,6 +167,6 @@ fun ProfileCompletionScreen(onProfileComplete: () -> Unit, authViewModel: AuthVi
 @Composable
 fun ProfileCompletionScreenPreview() {
     NENA_AI_MOBILETheme {
-        ProfileCompletionScreen(onProfileComplete = {})
+        ProfileCompletionScreen()
     }
 }

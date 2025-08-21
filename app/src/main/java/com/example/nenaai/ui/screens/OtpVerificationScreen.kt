@@ -46,7 +46,7 @@ import com.example.nenaai.viewmodel.OneTimeEvent
 import kotlinx.coroutines.launch
 
 @Composable
-fun OtpVerificationScreen(onVerificationSuccess: () -> Unit, authViewModel: AuthViewModel = hiltViewModel()) {
+fun OtpVerificationScreen(authViewModel: AuthViewModel = hiltViewModel()) {
     var otpInput by remember { mutableStateOf("") }
     val authState by authViewModel.authState.collectAsStateWithLifecycle()
     val phoneNumber by authViewModel.phoneNumber.collectAsStateWithLifecycle()
@@ -183,6 +183,6 @@ fun OtpVerificationScreen(onVerificationSuccess: () -> Unit, authViewModel: Auth
 @Composable
 fun OtpVerificationScreenPreview() {
     NENA_AI_MOBILETheme {
-        OtpVerificationScreen(onVerificationSuccess = {}) 
+        OtpVerificationScreen() 
     }
 }

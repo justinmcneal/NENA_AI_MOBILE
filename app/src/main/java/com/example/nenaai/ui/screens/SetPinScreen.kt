@@ -44,7 +44,8 @@ import com.example.nenaai.viewmodel.ProfileViewModel
 import kotlinx.coroutines.launch
 
 @Composable
-fun SetPinScreen(onPinSetSuccess: () -> Unit, profileViewModel: ProfileViewModel = hiltViewModel()) {
+fun SetPinScreen(
+    profileViewModel: ProfileViewModel = hiltViewModel()) {
     var pinInput by remember { mutableStateOf("") }
     val profileState by profileViewModel.profileState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -60,7 +61,6 @@ fun SetPinScreen(onPinSetSuccess: () -> Unit, profileViewModel: ProfileViewModel
                             withDismissAction = true
                         )
                     }
-                    onPinSetSuccess()
                 }
                 is ProfileOneTimeEvent.Error -> {
                     scope.launch {
@@ -165,6 +165,6 @@ fun SetPinScreen(onPinSetSuccess: () -> Unit, profileViewModel: ProfileViewModel
 @Composable
 fun SetPinScreenPreview() {
     NENA_AI_MOBILETheme {
-        SetPinScreen(onPinSetSuccess = {})
+        SetPinScreen()
     }
 }
