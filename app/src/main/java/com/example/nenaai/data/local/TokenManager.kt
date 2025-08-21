@@ -23,8 +23,32 @@ class TokenManager @Inject constructor(@ApplicationContext context: Context) {
         prefs.edit().remove(KEY_ACCESS_TOKEN).apply()
     }
 
+    // New methods for authentication flow state
+    fun saveAuthFlowState(key: String, value: Boolean) {
+        prefs.edit().putBoolean(key, value).apply()
+    }
+
+    fun getAuthFlowState(key: String, defaultValue: Boolean = false): Boolean {
+        return prefs.getBoolean(key, defaultValue)
+    }
+
+    fun clearAuthFlowState() {
+        prefs.edit()
+            .remove(KEY_OTP_SENT)
+            .remove(KEY_OTP_VERIFIED)
+            .remove(KEY_PROFILE_COMPLETE)
+            .remove(KEY_PIN_SET)
+            .apply()
+    }
+
     companion object {
         private const val PREFS_NAME = "auth_prefs"
         private const val KEY_ACCESS_TOKEN = "access_token"
+
+        // New keys for authentication flow state
+        const val KEY_OTP_SENT = "otp_sent"
+        const val KEY_OTP_VERIFIED = "otp_verified"
+        const val KEY_PROFILE_COMPLETE = "profile_complete"
+        const val KEY_PIN_SET = "pin_set"
     }
 }

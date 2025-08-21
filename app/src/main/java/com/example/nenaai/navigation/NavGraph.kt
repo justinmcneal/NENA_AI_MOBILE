@@ -14,15 +14,21 @@ import com.example.nenaai.ui.screens.SetPinScreen
 import com.example.nenaai.ui.screens.VerificationScreen
 import com.example.nenaai.viewmodel.AuthViewModel
 import com.example.nenaai.viewmodel.OneTimeEvent
-import com.example.nenaai.viewmodel.ProfileViewModel // Import ProfileViewModel
-import com.example.nenaai.viewmodel.ProfileOneTimeEvent // Import ProfileOneTimeEvent
+import com.example.nenaai.viewmodel.ProfileViewModel
+import com.example.nenaai.viewmodel.ProfileOneTimeEvent
+import com.example.nenaai.data.local.TokenManager // Import TokenManager
 import androidx.compose.runtime.LaunchedEffect
+import javax.inject.Inject // Import Inject
 
 @Composable
 fun NavGraph() {
     val navController = rememberNavController()
     val authViewModel: AuthViewModel = hiltViewModel()
-    val profileViewModel: ProfileViewModel = hiltViewModel() // Get ProfileViewModel instance
+    val profileViewModel: ProfileViewModel = hiltViewModel()
+    val tokenManager: TokenManager = hiltViewModel<AuthViewModel>().tokenManager // Inject TokenManager
+
+    // Determine start destination based on saved state
+    val startDestination = getStartDestination(tokenManager)
 
     LaunchedEffect(Unit) { // Observe AuthViewModel's oneTimeEvent for navigation
         authViewModel.oneTimeEvent.collect { event ->
@@ -83,7 +89,7 @@ fun NavGraph() {
 
     NavHost(
         navController = navController,
-        startDestination = Screen.Login.route // Start with LoginScreen
+        startDestination = startDestination // Use dynamic start destination
     ) {
         composable(Screen.Login.route) {
             LoginScreen(authViewModel = authViewModel)
@@ -102,6 +108,27 @@ fun NavGraph() {
         }
         composable(Screen.VerificationScreen.route){
             VerificationScreen(navController)
+        }
+    }
+}
+
+@Composable
+private fun getStartDestination(tokenManager: TokenManager): String {
+    return when {
+        tokenManager.getToken() != null && tokenManager.getAuthFlowState(TokenManager.KEY_PIN_SET) -> {
+            Screen.Main.route // User is fully logged in and PIN is set
+        }
+        tokenManager.getAuthFlowState(TokenManager.KEY_PROFILE_COMPLETE) -> {
+            Screen.SetPin.route // Profile is complete, but PIN is not set
+        }
+        tokenManager.getAuthFlowState(TokenManager.KEY_OTP_VERIFIED) -> {
+            Screen.ProfileCompletion.route // OTP is verified, but profile is not complete
+        }
+        tokenManager.getAuthFlowState(TokenManager.KEY_OTP_SENT) -> {
+            Screen.OtpVerification.route // OTP is sent, but not verified
+        }
+        else -> {
+            Screen.Login.route // Default to login screen
         }
     }
 }

@@ -51,6 +51,7 @@ class ProfileViewModel @Inject constructor(
             _profileState.value = ProfileState.Loading
             try {
                 val response = authRepository.setPIN(pin)
+                tokenManager.saveAuthFlowState(TokenManager.KEY_PIN_SET, true) // Save PIN set state
                 _oneTimeEvent.emit(ProfileOneTimeEvent.Success(response.message))
             } catch (e: BackendException) {
                 _oneTimeEvent.emit(ProfileOneTimeEvent.Error(e.message ?: "Backend error occurred"))
