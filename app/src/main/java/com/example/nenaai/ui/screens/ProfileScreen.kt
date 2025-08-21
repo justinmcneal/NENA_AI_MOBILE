@@ -28,16 +28,18 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.nenaai.data.model.User
-import com.example.nenaai.navigation.Screen
 import com.example.nenaai.ui.components.CommonSnackbar
 import com.example.nenaai.viewmodel.ProfileViewModel
 
 @Composable
-fun ProfileScreen(navController: NavController, profileViewModel: ProfileViewModel = hiltViewModel()) {
+fun ProfileScreen(
+    onNavigateToSetPin: () -> Unit,
+    onNavigateToVerification: () -> Unit,
+    profileViewModel: ProfileViewModel = hiltViewModel()
+) {
     val userProfile by profileViewModel.userProfile.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -81,12 +83,7 @@ fun ProfileScreen(navController: NavController, profileViewModel: ProfileViewMod
                             .background(Color.Red)
                             .padding(horizontal = 8.dp, vertical = 4.dp)
                             .clickable {
-                                // Navigate to verification screen if needed
-                                navController.navigate("verification_screen"){
-                                    popUpTo("verification_screen"){
-                                        inclusive = true
-                                    }
-                                }
+                                onNavigateToVerification()
                             }
                     )
                 }
@@ -171,7 +168,7 @@ fun ProfileScreen(navController: NavController, profileViewModel: ProfileViewMod
                 .background(Color.LightGray.copy(alpha = 0.1f))
                 .clip(RoundedCornerShape(12.dp))
                 .clickable {
-                    navController.navigate(Screen.SetPin.route) // Navigate to SetPinScreen
+                    onNavigateToSetPin()
                 }
                 .padding(12.dp),
             horizontalArrangement = Arrangement.SpaceBetween,

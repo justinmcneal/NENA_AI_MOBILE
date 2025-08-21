@@ -37,6 +37,7 @@ import androidx.navigation.compose.composable // Import composable
 import androidx.navigation.compose.rememberNavController // Import rememberNavController
 import androidx.navigation.compose.currentBackStackEntryAsState // Import currentBackStackEntryAsState
 import com.example.nenaai.data.model.NavItem
+import com.example.nenaai.navigation.Screen // Import Screen
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -49,8 +50,8 @@ fun MainScreen(navController: NavController) { // navController is the parent Na
     val currentRoute = navBackStackEntry?.destination?.route
 
     val navItems = listOf(
-        NavItem("Home", Icons.Default.Home, "home_tab"), // Renamed routes for clarity
-        NavItem("Profile", Icons.Default.Person, "profile_tab")
+        NavItem("Home", Icons.Default.Home, Screen.BottomNav.Home.route),
+        NavItem("Profile", Icons.Default.Person, Screen.BottomNav.Profile.route)
     )
 
     ModalNavigationDrawer(
@@ -126,7 +127,12 @@ fun MainScreen(navController: NavController) { // navController is the parent Na
                     modifier = Modifier.fillMaxSize()
                 ) {
                     composable(navItems[0].route) { HomeScreen() } // Home tab
-                    composable(navItems[1].route) { ProfileScreen(navController) } // Profile tab
+                    composable(navItems[1].route) {
+                        ProfileScreen(
+                            onNavigateToSetPin = { navController.navigate(Screen.SetPin.route) },
+                            onNavigateToVerification = { navController.navigate(Screen.VerificationScreen.route) }
+                        )
+                    }
                     // Add other nested composables here if needed
                 }
             }

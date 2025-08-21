@@ -6,6 +6,12 @@ sealed class Screen(val route: String) {
     object ProfileCompletion : Screen("profile_completion")
     object SetPin : Screen("set_pin")
     object Main : Screen("main")
-    object UserInformation : Screen("user_information")
     object VerificationScreen : Screen("verification_screen")
+
+    // Nested routes for Bottom Navigation
+    object BottomNav {
+        object Home : Screen("home_tab")
+        object Profile : Screen("profile_tab")
+        // Add other bottom nav tabs here
+    }
 }
