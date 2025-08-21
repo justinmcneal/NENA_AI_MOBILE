@@ -3,6 +3,7 @@ package com.example.nenaai.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.nenaai.data.AuthRepository
+import com.example.nenaai.data.local.TokenManager
 import com.example.nenaai.data.model.dto.AuthResponse
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -11,7 +12,10 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class AuthViewModel @Inject constructor(private val repository: AuthRepository) : ViewModel() {
+class AuthViewModel @Inject constructor(
+    private val repository: AuthRepository,
+    private val tokenManager: TokenManager
+) : ViewModel() {
 
     private val _authState = MutableStateFlow<AuthState>(AuthState.Idle)
     val authState: StateFlow<AuthState> = _authState
@@ -33,6 +37,7 @@ class AuthViewModel @Inject constructor(private val repository: AuthRepository) 
             _authState.value = AuthState.Loading
             try {
                 val response = repository.verifyOTP(phoneNumber, otp)
+                response.access?.let { tokenManager.saveToken(it) }
                 _authState.value = AuthState.Success(response)
             } catch (e: Exception) {
                 _authState.value = AuthState.Error(e.message ?: "An error occurred")
@@ -69,6 +74,7 @@ class AuthViewModel @Inject constructor(private val repository: AuthRepository) 
             _authState.value = AuthState.Loading
             try {
                 val response = repository.loginWithPIN(phoneNumber, pin)
+                response.access?.let { tokenManager.saveToken(it) }
                 _authState.value = AuthState.Success(response)
             } catch (e: Exception) {
                 _authState.value = AuthState.Error(e.message ?: "An error occurred")
