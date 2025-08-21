@@ -13,6 +13,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.example.nenaai.navigation.NavGraph
 import com.example.nenaai.ui.theme.NENA_AI_MOBILETheme
 
+//The UI's main entry point, an Activity managing a single screen.
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
