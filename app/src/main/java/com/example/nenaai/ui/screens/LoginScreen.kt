@@ -131,7 +131,7 @@ fun LoginScreen(onOtpSent: () -> Unit, authViewModel: AuthViewModel = hiltViewMo
         Button(
             onClick = {
                 if (textInput.length == 10) {
-                    val fullPhoneNumber = "+63" + textInput
+                    val fullPhoneNumber = "+63$textInput"
                     authViewModel.registerUser(fullPhoneNumber)
                 } else {
                     scope.launch {

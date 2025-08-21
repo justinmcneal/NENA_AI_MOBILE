@@ -32,19 +32,25 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import androidx.navigation.compose.NavHost // Import NavHost
+import androidx.navigation.compose.composable // Import composable
+import androidx.navigation.compose.rememberNavController // Import rememberNavController
+import androidx.navigation.compose.currentBackStackEntryAsState // Import currentBackStackEntryAsState
 import com.example.nenaai.data.model.NavItem
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen(navController: NavController) {
+fun MainScreen(navController: NavController) { // navController is the parent NavController
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
-    var selectedTab by remember { mutableStateOf("home") }
+    val nestedNavController = rememberNavController() // Nested NavController for bottom tabs
+    val navBackStackEntry by nestedNavController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
 
     val navItems = listOf(
-        NavItem("Home", Icons.Default.Home, "home"),
-        NavItem("Profile", Icons.Default.Person, "profile")
+        NavItem("Home", Icons.Default.Home, "home_tab"), // Renamed routes for clarity
+        NavItem("Profile", Icons.Default.Person, "profile_tab")
     )
 
     ModalNavigationDrawer(
@@ -82,8 +88,22 @@ fun MainScreen(navController: NavController) {
                         NavigationBarItem(
                             icon = { Icon(item.icon, contentDescription = item.label) },
                             label = { Text(item.label) },
-                            selected = selectedTab == item.route,
-                            onClick = { selectedTab = item.route }
+                            selected = currentRoute == item.route, // Use currentRoute for selection
+                            onClick = {
+                                nestedNavController.navigate(item.route) {
+                                    // Pop up to the start destination of the graph to
+                                    // avoid building up a large stack of destinations
+                                    // on the back stack as users select items
+                                    popUpTo(nestedNavController.graph.startDestinationId) {
+                                        saveState = true
+                                    }
+                                    // Avoid multiple copies of the same destination when
+                                    // reselecting the same item
+                                    launchSingleTop = true
+                                    // Restore state when reselecting previously selected item
+                                    restoreState = true
+                                }
+                            }
                         )
                     }
                 }
@@ -100,10 +120,14 @@ fun MainScreen(navController: NavController) {
                     .padding(paddingValues),
                 contentAlignment = Alignment.Center
             ) {
-                when (selectedTab) {
-                    "home" -> HomeScreen()
-                    "profile" -> ProfileScreen(navController)
-                    else -> Text("Unknown Tab")
+                NavHost(
+                    navController = nestedNavController,
+                    startDestination = navItems[0].route, // Start with the first tab
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    composable(navItems[0].route) { HomeScreen() } // Home tab
+                    composable(navItems[1].route) { ProfileScreen(navController) } // Profile tab
+                    // Add other nested composables here if needed
                 }
             }
         }

@@ -64,14 +64,16 @@ fun NavGraph() {
         }
         composable(Screen.OtpVerification.route) {
             OtpVerificationScreen(onVerificationSuccess = {
-                // Navigation after OTP verification is handled by the LaunchedEffect in NavGraph
+                // After OTP verification, navigation is handled by the LaunchedEffect in NavGraph
                 // based on user_status (PROFILE_COMPLETE or OTP_VERIFIED leading to ProfileCompletionScreen)
             }, authViewModel = authViewModel)
         }
         composable(Screen.ProfileCompletion.route) {
             ProfileCompletionScreen(onProfileComplete = {
-                // Navigation after profile completion is handled by the LaunchedEffect in NavGraph
-                // based on user_status (PROFILE_COMPLETE leading to MainScreen)
+                // After profile completion, navigate to MainScreen
+                navController.navigate(Screen.Main.route) {
+                    popUpTo(Screen.Login.route) { inclusive = true } // Clear backstack up to Login
+                }
             }, authViewModel = authViewModel)
         }
         composable(Screen.SetPin.route) {
