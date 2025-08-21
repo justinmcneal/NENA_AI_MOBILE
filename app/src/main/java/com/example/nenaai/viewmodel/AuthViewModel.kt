@@ -78,6 +78,23 @@ class AuthViewModel @Inject constructor(
         }
     }
 
+    fun resendOTP(phoneNumber: String) {
+        viewModelScope.launch {
+            _authState.value = AuthState.Loading
+            Log.d("AuthViewModel", "Resending OTP for phone number: $phoneNumber")
+            try {
+                val response = repository.resendOTP(phoneNumber)
+                _oneTimeEvent.emit(OneTimeEvent.Success(response))
+            } catch (e: BackendException) {
+                _oneTimeEvent.emit(OneTimeEvent.Error(e.message ?: "Backend error occurred"))
+            } catch (e: Exception) {
+                _oneTimeEvent.emit(OneTimeEvent.Error(e.message ?: "An unexpected error occurred"))
+            } finally {
+                _authState.value = AuthState.Idle
+            }
+        }
+    }
+
     fun completeProfile(firstName: String, middleName: String?, lastName: String) {
         viewModelScope.launch {
             _authState.value = AuthState.Loading

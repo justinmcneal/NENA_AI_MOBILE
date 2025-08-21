@@ -7,6 +7,7 @@ import com.example.nenaai.data.model.OTPVerificationRequest
 import com.example.nenaai.data.model.ProfileCompletionRequest
 import com.example.nenaai.data.model.SetPINRequest
 import com.example.nenaai.data.model.UserRegistrationRequest
+import com.example.nenaai.data.model.ResendOTPRequest
 import com.example.nenaai.data.model.AuthResponse
 import com.example.nenaai.data.model.BackendErrorResponse
 import com.example.nenaai.data.network.BackendException
@@ -41,6 +42,13 @@ class AuthRepository @Inject constructor(private val apiService: ApiService) {
 
     suspend fun verifyOTP(phoneNumber: String, otp: String) : AuthResponse {
         val response = apiService.verifyOTP(OTPVerificationRequest(phoneNumber, otp))
+        return handleApiResponse(response)
+    }
+
+    suspend fun resendOTP(phoneNumber: String) : AuthResponse {
+        val request = ResendOTPRequest(phoneNumber)
+        Log.d("AuthRepository", "Sending resend OTP request: $request")
+        val response = apiService.resendOTP(request)
         return handleApiResponse(response)
     }
 

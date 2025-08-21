@@ -6,6 +6,7 @@ import com.example.nenaai.data.model.OTPVerificationRequest
 import com.example.nenaai.data.model.ProfileCompletionRequest
 import com.example.nenaai.data.model.SetPINRequest
 import com.example.nenaai.data.model.UserRegistrationRequest
+import com.example.nenaai.data.model.ResendOTPRequest
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.POST
@@ -16,6 +17,9 @@ interface ApiService {
 
     @POST("verify-otp/")
     suspend fun verifyOTP(@Body request: OTPVerificationRequest): Response<AuthResponse>
+
+    @POST("resend-otp/")
+    suspend fun resendOTP(@Body request: ResendOTPRequest): Response<AuthResponse>
 
     @POST("complete-profile/")
     suspend fun completeProfile(@Body request: ProfileCompletionRequest): Response<AuthResponse>

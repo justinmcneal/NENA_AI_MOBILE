@@ -24,6 +24,10 @@ data class LoginWithPINRequest(
     val pin: String
 )
 
+data class ResendOTPRequest(
+    val phone_number: String
+)
+
 data class AuthResponse(
     val message: String,
     val refresh: String?,

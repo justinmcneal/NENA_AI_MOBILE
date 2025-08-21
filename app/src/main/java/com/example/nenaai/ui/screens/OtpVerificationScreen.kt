@@ -154,7 +154,7 @@ fun OtpVerificationScreen(onVerificationSuccess: () -> Unit, authViewModel: Auth
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(
-            onClick = { authViewModel.registerUser(phoneNumber) },
+            onClick = { authViewModel.resendOTP(phoneNumber) },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp),
