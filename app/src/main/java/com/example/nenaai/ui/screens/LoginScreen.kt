@@ -1,6 +1,5 @@
 package com.example.nenaai.ui.screens
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -22,12 +21,9 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource // Used for local drawable, adjust if using another image source
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
@@ -38,7 +34,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.nenaai.ui.theme.NENA_AI_MOBILETheme
 import com.example.nenaai.viewmodel.AuthViewModel
 import com.example.nenaai.viewmodel.AuthState
-import com.example.nenaai.R // Assuming R.drawable.your_logo is available or replace with a placeholder
 
 @Composable
 fun LoginScreen(onOtpSent: () -> Unit, authViewModel: AuthViewModel = hiltViewModel()) {

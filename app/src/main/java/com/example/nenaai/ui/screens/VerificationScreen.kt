@@ -24,7 +24,7 @@ import java.util.*
 
 @Composable
 fun VerificationScreen(navController: NavController) {
-    var currentStep by remember { mutableStateOf(1) }
+    var currentStep by remember { mutableIntStateOf(1) }
 
     Column(
         modifier = Modifier
@@ -35,13 +35,13 @@ fun VerificationScreen(navController: NavController) {
     ) {
         // Step Progress Indicator
         LinearProgressIndicator(
-            progress = currentStep / 3f,
+            progress = { currentStep / 3f },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(8.dp)
                 .clip(CircleShape),
             color = MaterialTheme.colorScheme.primary,
-            trackColor = MaterialTheme.colorScheme.surfaceVariant
+            trackColor = MaterialTheme.colorScheme.surfaceVariant,
         )
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -119,7 +119,6 @@ fun VerificationScreen(navController: NavController) {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Step1Content() {
     // Basic Information section
@@ -220,7 +219,6 @@ fun Step1Content() {
     DropdownField(label = "Barangay", options = listOf("asd","asdas"))
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Step2Content() {
     Column(

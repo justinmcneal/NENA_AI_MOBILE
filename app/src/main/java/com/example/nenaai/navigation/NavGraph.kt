@@ -14,6 +14,7 @@ import com.example.nenaai.ui.screens.VerificationScreen
 import com.example.nenaai.viewmodel.AuthViewModel
 import com.example.nenaai.viewmodel.AuthState
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 @Composable

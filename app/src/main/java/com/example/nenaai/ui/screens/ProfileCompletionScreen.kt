@@ -48,7 +48,7 @@ fun ProfileCompletionScreen(onProfileComplete: () -> Unit, authViewModel: AuthVi
         when (authState) {
             is AuthState.Success -> {
                 // Check if the success is for profile completion
-                if (authState.authResponse.user_status == "PROFILE_COMPLETE") {
+                if ((authState as AuthState.Success).authResponse.user_status == "PROFILE_COMPLETE") {
                     onProfileComplete()
                     authViewModel.resetAuthState()
                 }

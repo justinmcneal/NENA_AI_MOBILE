@@ -1,4 +1,4 @@
-package com.example.nenaai.data
+package com.example.nenaai.data.repository
 
 import com.example.nenaai.data.network.ApiService
 import com.example.nenaai.data.model.dto.LoginWithPINRequest
