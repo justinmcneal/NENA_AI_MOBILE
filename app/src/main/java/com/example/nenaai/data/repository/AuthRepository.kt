@@ -57,8 +57,8 @@ class AuthRepository @Inject constructor(private val apiService: ApiService) {
         return handleApiResponse(response)
     }
 
-    suspend fun setPIN(pin: String) : AuthResponse {
-        val response = apiService.setPIN(SetPINRequest(pin))
+    suspend fun setPIN(phoneNumber: String, pin: String) : AuthResponse {
+        val response = apiService.setPIN(SetPINRequest(phoneNumber, pin))
         return handleApiResponse(response)
     }
 

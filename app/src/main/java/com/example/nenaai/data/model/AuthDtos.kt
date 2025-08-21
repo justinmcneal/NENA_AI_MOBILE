@@ -16,6 +16,7 @@ data class ProfileCompletionRequest(
 )
 
 data class SetPINRequest(
+    val phone_number: String,
     val pin: String
 )
 

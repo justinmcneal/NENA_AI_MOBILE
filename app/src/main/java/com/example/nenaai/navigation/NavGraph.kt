@@ -12,6 +12,7 @@ import com.example.nenaai.ui.screens.OtpVerificationScreen
 import com.example.nenaai.ui.screens.ProfileCompletionScreen
 import com.example.nenaai.ui.screens.SetPinScreen
 import com.example.nenaai.ui.screens.VerificationScreen
+import com.example.nenaai.ui.screens.PinVerificationScreen // Import the new screen
 import com.example.nenaai.viewmodel.AuthViewModel
 import com.example.nenaai.viewmodel.OneTimeEvent
 import com.example.nenaai.viewmodel.ProfileViewModel
@@ -35,26 +36,30 @@ fun NavGraph() {
             Log.d("NavGraph", "Received Auth OneTimeEvent: $event")
             when (event) {
                 is OneTimeEvent.Success -> {
-                    Log.d("NavGraph", "Auth OneTimeEvent.Success with user_status: ${event.authResponse.user_status}")
-                    when (event.authResponse.user_status) {
-                        "OTP_SENT" -> {
-                            Log.d("NavGraph", "Navigating to OtpVerificationScreen")
-                            navController.navigate(Screen.OtpVerification.route)
-                        }
-                        "OTP_VERIFIED" -> {
-                            Log.d("NavGraph", "Navigating to ProfileCompletionScreen")
-                            navController.navigate(Screen.ProfileCompletion.route) {
-                                popUpTo(Screen.Login.route) { inclusive = true }
+                    Log.d("NavGraph", "Auth OneTimeEvent.Success with message: ${event.authResponse.message}")
+                    // Check message for OTP sent success
+                    if (event.authResponse.message == "OTP sent successfully.") {
+                        Log.d("NavGraph", "Navigating to OtpVerificationScreen (OTP sent success)")
+                        navController.navigate(Screen.OtpVerification.route)
+                    } else {
+                        // Handle other success cases based on message or other fields if needed
+                        // For example, if verifyOTP returns success, it might have a different message
+                        when (event.authResponse.user_status) { // Keep existing logic for other statuses
+                            "OTP_VERIFIED" -> {
+                                Log.d("NavGraph", "Navigating to ProfileCompletionScreen")
+                                navController.navigate(Screen.ProfileCompletion.route) {
+                                    popUpTo(Screen.Login.route) { inclusive = true }
+                                }
                             }
-                        }
-                        "PROFILE_COMPLETE" -> {
-                            Log.d("NavGraph", "Navigating to MainScreen")
-                            navController.navigate(Screen.Main.route) {
-                                popUpTo(Screen.Login.route) { inclusive = true }
+                            "PROFILE_COMPLETE" -> {
+                                Log.d("NavGraph", "Navigating to SetPinScreen") // Changed log message
+                                navController.navigate(Screen.SetPin.route) { // Changed navigation route
+                                    popUpTo(Screen.Login.route) { inclusive = true }
+                                }
                             }
-                        }
-                        else -> {
-                            Log.d("NavGraph", "Unhandled user_status: ${event.authResponse.user_status}")
+                            else -> {
+                                Log.d("NavGraph", "Unhandled user_status or message: ${event.authResponse.user_status} / ${event.authResponse.message}")
+                            }
                         }
                     }
                 }
@@ -95,13 +100,16 @@ fun NavGraph() {
             LoginScreen(authViewModel = authViewModel)
         }
         composable(Screen.OtpVerification.route) {
-            OtpVerificationScreen(authViewModel = authViewModel)
+            OtpVerificationScreen(navController = navController, authViewModel = authViewModel)
         }
         composable(Screen.ProfileCompletion.route) {
             ProfileCompletionScreen(authViewModel = authViewModel)
         }
         composable(Screen.SetPin.route) {
             SetPinScreen(profileViewModel = profileViewModel)
+        }
+        composable(Screen.PinVerification.route) { // ADDED new composable
+            PinVerificationScreen(navController = navController, authViewModel = authViewModel)
         }
         composable(Screen.Main.route) {
             MainScreen(navController)
@@ -116,7 +124,7 @@ fun NavGraph() {
 private fun getStartDestination(tokenManager: TokenManager): String {
     return when {
         tokenManager.getToken() != null && tokenManager.getAuthFlowState(TokenManager.KEY_PIN_SET) -> {
-            Screen.Main.route // User is fully logged in and PIN is set
+            Screen.PinVerification.route // Changed to PinVerificationScreen
         }
         tokenManager.getAuthFlowState(TokenManager.KEY_PROFILE_COMPLETE) -> {
             Screen.SetPin.route // Profile is complete, but PIN is not set

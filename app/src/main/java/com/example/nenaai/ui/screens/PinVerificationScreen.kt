@@ -1,32 +1,12 @@
 package com.example.nenaai.ui.screens
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -36,37 +16,48 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.nenaai.ui.components.CommonSnackbar
 import com.example.nenaai.ui.theme.NENA_AI_MOBILETheme
-import com.example.nenaai.viewmodel.ProfileOneTimeEvent
-import com.example.nenaai.viewmodel.ProfileState
-import com.example.nenaai.viewmodel.ProfileViewModel
-import com.example.nenaai.viewmodel.AuthViewModel // Import AuthViewModel
+import com.example.nenaai.viewmodel.AuthViewModel
+import com.example.nenaai.viewmodel.AuthState
+import com.example.nenaai.viewmodel.OneTimeEvent
+import com.example.nenaai.navigation.Screen // Import Screen for navigation routes
 import kotlinx.coroutines.launch
 
 @Composable
-fun SetPinScreen(
-    profileViewModel: ProfileViewModel = hiltViewModel(),
-    authViewModel: AuthViewModel = hiltViewModel() // Inject AuthViewModel
+fun PinVerificationScreen(
+    navController: NavController,
+    authViewModel: AuthViewModel = hiltViewModel()
 ) {
     var pinInput by remember { mutableStateOf("") }
-    val profileState by profileViewModel.profileState.collectAsStateWithLifecycle()
-    val phoneNumber by authViewModel.phoneNumber.collectAsStateWithLifecycle() // Get phoneNumber from AuthViewModel
+    val authState by authViewModel.authState.collectAsStateWithLifecycle()
+    val phoneNumber by authViewModel.phoneNumber.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
+    var isPinError by remember { mutableStateOf(false) } // ADDED: State to track PIN error
 
     LaunchedEffect(Unit) {
-        profileViewModel.oneTimeEvent.collect { event ->
+        authViewModel.oneTimeEvent.collect { event ->
             when (event) {
-                is ProfileOneTimeEvent.Success -> {
+                is OneTimeEvent.Success -> {
+                    isPinError = false // Reset error on success
                     scope.launch {
                         snackbarHostState.showSnackbar(
-                            message = event.message,
+                            message = event.authResponse.message,
                             withDismissAction = true
                         )
                     }
+                    // Navigate to MainScreen on successful PIN verification
+                    if (event.authResponse.user_status == "PIN_VERIFIED" || event.authResponse.access != null) { // Assuming backend sends PIN_VERIFIED or access token on success
+                        navController.navigate(Screen.Main.route) {
+                            popUpTo(Screen.PinVerification.route) { inclusive = true } // Clear backstack
+                        }
+                    }
                 }
-                is ProfileOneTimeEvent.Error -> {
+                is OneTimeEvent.Error -> {
+                    isPinError = true // Set error on failure
                     scope.launch {
                         snackbarHostState.showSnackbar(
                             message = event.message,
@@ -87,14 +78,14 @@ fun SetPinScreen(
     ) {
         Icon(
             Icons.Default.Lock,
-            contentDescription = "Set PIN",
+            contentDescription = "PIN Verification",
             modifier = Modifier.size(96.dp),
             tint = MaterialTheme.colorScheme.primary
         )
         Spacer(modifier = Modifier.height(48.dp))
 
         Text(
-            text = "Set Your PIN",
+            text = "Enter Your PIN",
             style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Bold),
             color = MaterialTheme.colorScheme.onBackground,
             textAlign = TextAlign.Center,
@@ -103,7 +94,7 @@ fun SetPinScreen(
         Spacer(modifier = Modifier.height(8.dp))
 
         Text(
-            text = "Create a 4-6 digit PIN for quick and secure access.",
+            text = "Please enter your 4-6 digit PIN to continue.",
             style = MaterialTheme.typography.bodyLarge,
             textAlign = TextAlign.Center,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -114,15 +105,16 @@ fun SetPinScreen(
         OutlinedTextField(
             value = pinInput,
             onValueChange = { newValue ->
-                if (newValue.length in 0..6 && newValue.all { it.isDigit() }) { // Allow empty string for initial state
+                if (newValue.length in 0..6 && newValue.all { it.isDigit() }) {
                     pinInput = newValue
+                    isPinError = false // Reset error when user types
                 }
             },
             label = { Text("PIN") },
             placeholder = { Text("e.g., 1234") },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
             modifier = Modifier.fillMaxWidth(),
-            isError = profileState is ProfileState.Error,
+            isError = isPinError, // CHANGED: Use isPinError state
             shape = RoundedCornerShape(12.dp)
         )
 
@@ -131,7 +123,7 @@ fun SetPinScreen(
         Button(
             onClick = {
                 if (pinInput.length in 4..6) {
-                    profileViewModel.setPIN(phoneNumber, pinInput) // Pass phoneNumber
+                    authViewModel.loginWithPIN(phoneNumber, pinInput) // Use loginWithPIN for verification
                 } else {
                     scope.launch {
                         snackbarHostState.showSnackbar(
@@ -149,13 +141,13 @@ fun SetPinScreen(
             ),
             shape = RoundedCornerShape(12.dp),
             elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp),
-            enabled = profileState !is ProfileState.Loading
+            enabled = authState !is AuthState.Loading
         ) {
-            if (profileState is ProfileState.Loading) {
+            if (authState is AuthState.Loading) {
                 CircularProgressIndicator(color = MaterialTheme.colorScheme.onPrimary, modifier = Modifier.size(24.dp))
             } else {
                 Text(
-                    "Set PIN",
+                    "Verify PIN",
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onPrimary
                 )
@@ -167,8 +159,8 @@ fun SetPinScreen(
 
 @Preview(showBackground = true)
 @Composable
-fun SetPinScreenPreview() {
+fun PinVerificationScreenPreview() {
     NENA_AI_MOBILETheme {
-        SetPinScreen()
+        PinVerificationScreen(navController = rememberNavController())
     }
 }

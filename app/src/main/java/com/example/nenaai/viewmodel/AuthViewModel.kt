@@ -30,26 +30,30 @@ class AuthViewModel @Inject constructor(
     private val _oneTimeEvent = MutableSharedFlow<OneTimeEvent>()
     val oneTimeEvent: SharedFlow<OneTimeEvent> = _oneTimeEvent
 
-    fun setPhoneNumber(newValue: String) {
-        _phoneNumber.value = newValue
+    init { // ADDED init block
+        tokenManager.getPhoneNumber()?.let {
+            _phoneNumber.value = it
+        }
     }
 
-    fun setFullPhoneNumber(fullNumber: String) {
-        _phoneNumber.value = fullNumber
+    fun setPhoneNumber(newValue: String) {
+        // Ensure +63 prefix is always present when setting the phone number
+        _phoneNumber.value = if (newValue.startsWith("+63")) newValue else "+63$newValue"
     }
 
     fun resetAuthState() {
         _authState.value = AuthState.Idle
     }
 
-    fun clearPhoneNumber() { // ADDED THIS FUNCTION
+    fun clearPhoneNumber() {
         _phoneNumber.value = ""
+        tokenManager.clearAuthFlowState() // This already clears KEY_PHONE_NUMBER
     }
 
     fun registerUser(phoneNumber: String) {
         viewModelScope.launch {
             _authState.value = AuthState.Loading
-            setFullPhoneNumber(phoneNumber) // Moved here
+            tokenManager.savePhoneNumber(phoneNumber) // Save phone number to TokenManager
             Log.d("AuthViewModel", "Registering user with phone number: $phoneNumber")
             try {
                 val response = repository.registerUser(phoneNumber)
@@ -69,6 +73,7 @@ class AuthViewModel @Inject constructor(
     fun verifyOTP(phoneNumber: String, otp: String) {
         viewModelScope.launch {
             _authState.value = AuthState.Loading
+            Log.d("AuthViewModel", "Verifying OTP for phone number: $phoneNumber, OTP: $otp")
             try {
                 val response = repository.verifyOTP(phoneNumber, otp)
                 response.access?.let { tokenManager.saveToken(it) }
@@ -88,6 +93,7 @@ class AuthViewModel @Inject constructor(
     fun resendOTP(phoneNumber: String, otpCode: String = "") {
         viewModelScope.launch {
             _authState.value = AuthState.Loading
+            tokenManager.savePhoneNumber(phoneNumber) // Save phone number to TokenManager
             Log.d("AuthViewModel", "Resending OTP for phone number: $phoneNumber")
             try {
                 val response = repository.resendOTP(phoneNumber, otpCode)

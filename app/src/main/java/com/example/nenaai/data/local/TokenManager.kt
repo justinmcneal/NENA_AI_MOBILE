@@ -38,7 +38,17 @@ class TokenManager @Inject constructor(@ApplicationContext context: Context) {
             .remove(KEY_OTP_VERIFIED)
             .remove(KEY_PROFILE_COMPLETE)
             .remove(KEY_PIN_SET)
+            .remove(KEY_PHONE_NUMBER) // ADDED THIS LINE
             .apply()
+    }
+
+    // ADDED FUNCTIONS FOR PHONE NUMBER
+    fun savePhoneNumber(phoneNumber: String) {
+        prefs.edit().putString(KEY_PHONE_NUMBER, phoneNumber).apply()
+    }
+
+    fun getPhoneNumber(): String? {
+        return prefs.getString(KEY_PHONE_NUMBER, null)
     }
 
     companion object {
@@ -50,5 +60,6 @@ class TokenManager @Inject constructor(@ApplicationContext context: Context) {
         const val KEY_OTP_VERIFIED = "otp_verified"
         const val KEY_PROFILE_COMPLETE = "profile_complete"
         const val KEY_PIN_SET = "pin_set"
+        const val KEY_PHONE_NUMBER = "phone_number" // ADDED THIS LINE
     }
 }

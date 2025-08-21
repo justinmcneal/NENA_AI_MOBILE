@@ -46,11 +46,11 @@ class ProfileViewModel @Inject constructor(
         // }
     }
 
-    fun setPIN(pin: String) {
+    fun setPIN(phoneNumber: String, pin: String) {
         viewModelScope.launch {
             _profileState.value = ProfileState.Loading
             try {
-                val response = authRepository.setPIN(pin)
+                val response = authRepository.setPIN(phoneNumber, pin)
                 tokenManager.saveAuthFlowState(TokenManager.KEY_PIN_SET, true) // Save PIN set state
                 _oneTimeEvent.emit(ProfileOneTimeEvent.Success(response.message))
             } catch (e: BackendException) {
