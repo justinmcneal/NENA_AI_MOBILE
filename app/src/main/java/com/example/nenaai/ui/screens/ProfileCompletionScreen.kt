@@ -9,10 +9,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Call
-import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -28,9 +26,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -41,16 +37,21 @@ import com.example.nenaai.viewmodel.AuthViewModel
 import com.example.nenaai.viewmodel.AuthState
 
 @Composable
-fun OtpVerificationScreen(onVerificationSuccess: () -> Unit, authViewModel: AuthViewModel = hiltViewModel()) {
-    var otpInput by remember { mutableStateOf("") }
+fun ProfileCompletionScreen(onProfileComplete: () -> Unit, authViewModel: AuthViewModel = hiltViewModel()) {
+    var firstName by remember { mutableStateOf("") }
+    var middleName by remember { mutableStateOf("") }
+    var lastName by remember { mutableStateOf("") }
+
     val authState by authViewModel.authState.collectAsStateWithLifecycle()
-    val phoneNumber by authViewModel.phoneNumber.collectAsStateWithLifecycle()
 
     LaunchedEffect(authState) {
         when (authState) {
             is AuthState.Success -> {
-                onVerificationSuccess()
-                authViewModel.resetAuthState() // Reset state after navigation
+                // Check if the success is for profile completion
+                if (authState.authResponse.user_status == "PROFILE_COMPLETE") {
+                    onProfileComplete()
+                    authViewModel.resetAuthState()
+                }
             }
             else -> { /* Handle other states or do nothing */ }
         }
@@ -64,15 +65,15 @@ fun OtpVerificationScreen(onVerificationSuccess: () -> Unit, authViewModel: Auth
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Icon(
-            Icons.Default.Call,
-            contentDescription = "OTP Verification",
+            Icons.Default.Person,
+            contentDescription = "Profile Completion",
             modifier = Modifier.size(96.dp),
             tint = MaterialTheme.colorScheme.primary
         )
         Spacer(modifier = Modifier.height(48.dp))
 
         Text(
-            text = "Verify Your Number",
+            text = "Complete Your Profile",
             style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Bold),
             color = MaterialTheme.colorScheme.onBackground,
             textAlign = TextAlign.Center,
@@ -81,7 +82,7 @@ fun OtpVerificationScreen(onVerificationSuccess: () -> Unit, authViewModel: Auth
         Spacer(modifier = Modifier.height(8.dp))
 
         Text(
-            text = "Enter the 6-digit code sent to \n+63 $phoneNumber",
+            text = "Please provide your personal details to complete your registration.",
             style = MaterialTheme.typography.bodyLarge,
             textAlign = TextAlign.Center,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -90,22 +91,31 @@ fun OtpVerificationScreen(onVerificationSuccess: () -> Unit, authViewModel: Auth
         Spacer(modifier = Modifier.height(32.dp))
 
         OutlinedTextField(
-            value = otpInput,
-            onValueChange = { newValue ->
-                if (newValue.length <= 6 && newValue.all { it.isDigit() }) {
-                    otpInput = newValue
-                }
-            },
-            label = { Text("6-digit OTP") },
-            placeholder = { Text("e.g., 123456") },
-            leadingIcon = {
-                Icon(Icons.Default.Lock, contentDescription = "OTP Icon")
-            },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
+            value = firstName,
+            onValueChange = { firstName = it },
+            label = { Text("First Name") },
             modifier = Modifier.fillMaxWidth(),
-            isError = authState is AuthState.Error,
             shape = RoundedCornerShape(12.dp)
         )
+        Spacer(modifier = Modifier.height(16.dp))
+
+        OutlinedTextField(
+            value = middleName,
+            onValueChange = { middleName = it },
+            label = { Text("Middle Name (Optional)") },
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(12.dp)
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+
+        OutlinedTextField(
+            value = lastName,
+            onValueChange = { lastName = it },
+            label = { Text("Last Name") },
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(12.dp)
+        )
+        Spacer(modifier = Modifier.height(24.dp))
 
         if (authState is AuthState.Error) {
             Text(
@@ -121,7 +131,7 @@ fun OtpVerificationScreen(onVerificationSuccess: () -> Unit, authViewModel: Auth
         Spacer(modifier = Modifier.height(24.dp))
 
         Button(
-            onClick = { authViewModel.verifyOTP(phoneNumber, otpInput) },
+            onClick = { authViewModel.completeProfile(firstName, middleName.ifEmpty { null }, lastName) },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp),
@@ -136,33 +146,9 @@ fun OtpVerificationScreen(onVerificationSuccess: () -> Unit, authViewModel: Auth
                 CircularProgressIndicator(color = MaterialTheme.colorScheme.onPrimary, modifier = Modifier.size(24.dp))
             } else {
                 Text(
-                    "Verify",
+                    "Complete Profile",
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onPrimary
-                )
-            }
-        }
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Button(
-            onClick = { authViewModel.registerUser(phoneNumber) },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp),
-            colors = ButtonDefaults.outlinedButtonColors(
-                containerColor = Color.Transparent,
-                contentColor = MaterialTheme.colorScheme.primary
-            ),
-            shape = RoundedCornerShape(12.dp),
-            elevation = ButtonDefaults.buttonElevation(defaultElevation = 0.dp),
-            enabled = authState !is AuthState.Loading
-        ) {
-            if (authState is AuthState.Loading) {
-                CircularProgressIndicator(color = MaterialTheme.colorScheme.primary, modifier = Modifier.size(24.dp))
-            } else {
-                Text(
-                    "Resend OTP",
-                    style = MaterialTheme.typography.titleMedium
                 )
             }
         }
@@ -171,8 +157,8 @@ fun OtpVerificationScreen(onVerificationSuccess: () -> Unit, authViewModel: Auth
 
 @Preview(showBackground = true)
 @Composable
-fun OtpVerificationScreenPreview() {
+fun ProfileCompletionScreenPreview() {
     NENA_AI_MOBILETheme {
-        OtpVerificationScreen(onVerificationSuccess = {})
+        ProfileCompletionScreen(onProfileComplete = {})
     }
 }

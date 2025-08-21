@@ -20,6 +20,17 @@ class AuthViewModel @Inject constructor(
     private val _authState = MutableStateFlow<AuthState>(AuthState.Idle)
     val authState: StateFlow<AuthState> = _authState
 
+    private val _phoneNumber = MutableStateFlow("")
+    val phoneNumber: StateFlow<String> = _phoneNumber
+
+    fun setPhoneNumber(newValue: String) {
+        _phoneNumber.value = newValue
+    }
+
+    fun resetAuthState() {
+        _authState.value = AuthState.Idle
+    }
+
     fun registerUser(phoneNumber: String) {
         viewModelScope.launch {
             _authState.value = AuthState.Loading
