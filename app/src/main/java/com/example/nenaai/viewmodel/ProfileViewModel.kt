@@ -3,8 +3,7 @@ package com.example.nenaai.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.nenaai.data.local.TokenManager
-import com.example.nenaai.data.model.dto.AuthResponse
-import com.example.nenaai.data.model.dto.User
+import com.example.nenaai.data.model.User
 import com.example.nenaai.data.network.BackendException
 import com.example.nenaai.data.repository.AuthRepository
 import dagger.hilt.android.lifecycle.HiltViewModel

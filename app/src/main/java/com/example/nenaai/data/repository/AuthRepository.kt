@@ -2,13 +2,13 @@ package com.example.nenaai.data.repository
 
 import android.util.Log
 import com.example.nenaai.data.network.ApiService
-import com.example.nenaai.data.model.dto.LoginWithPINRequest
-import com.example.nenaai.data.model.dto.OTPVerificationRequest
-import com.example.nenaai.data.model.dto.ProfileCompletionRequest
-import com.example.nenaai.data.model.dto.SetPINRequest
-import com.example.nenaai.data.model.dto.UserRegistrationRequest
-import com.example.nenaai.data.model.dto.AuthResponse
-import com.example.nenaai.data.model.dto.BackendErrorResponse
+import com.example.nenaai.data.model.LoginWithPINRequest
+import com.example.nenaai.data.model.OTPVerificationRequest
+import com.example.nenaai.data.model.ProfileCompletionRequest
+import com.example.nenaai.data.model.SetPINRequest
+import com.example.nenaai.data.model.UserRegistrationRequest
+import com.example.nenaai.data.model.AuthResponse
+import com.example.nenaai.data.model.BackendErrorResponse
 import com.example.nenaai.data.network.BackendException
 import com.google.gson.Gson
 import retrofit2.Response

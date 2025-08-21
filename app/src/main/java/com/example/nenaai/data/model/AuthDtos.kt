@@ -1,4 +1,4 @@
-package com.example.nenaai.data.model.dto
+package com.example.nenaai.data.model
 
 data class UserRegistrationRequest(
     val phone_number: String
