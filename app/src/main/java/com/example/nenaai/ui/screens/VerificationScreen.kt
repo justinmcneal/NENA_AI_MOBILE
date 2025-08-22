@@ -1,30 +1,48 @@
 package com.example.nenaai.ui.screens
 
 import android.app.DatePickerDialog
+import android.graphics.Bitmap
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.result.launch
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import com.example.nenaai.navigation.Screen
+import com.example.nenaai.viewmodel.VerificationViewModel
 import java.util.*
 
 @Composable
-fun VerificationScreen(navController: NavController) {
+fun VerificationScreen(
+    navController: NavController,
+    viewModel: VerificationViewModel = hiltViewModel()
+) {
     var currentStep by remember { mutableIntStateOf(1) }
+    val documentBitmaps by viewModel.documentBitmaps.collectAsStateWithLifecycle()
 
     Column(
         modifier = Modifier
@@ -70,7 +88,7 @@ fun VerificationScreen(navController: NavController) {
                 when (currentStep) {
                     1 -> Step1Content()
                     2 -> Step2Content()
-                    3 -> Step3Content()
+                    3 -> Step3Content(bitmaps = documentBitmaps, onDocumentCaptured = viewModel::onDocumentCaptured)
                 }
             }
         }
@@ -96,8 +114,9 @@ fun VerificationScreen(navController: NavController) {
             Button(
                 onClick = {
                     if (currentStep < 3) currentStep++ else {
-                        navController.navigate("main_screen"){
-                            popUpTo("main_screen"){
+                        viewModel.submitVerification()
+                        navController.navigate(Screen.Main.route){
+                            popUpTo(Screen.VerificationScreen.route){
                                 inclusive = true
                             }
                         }
@@ -260,11 +279,16 @@ fun Step2Content() {
 }
 
 @Composable
-fun Step3Content() {
+fun Step3Content(
+    bitmaps: Map<String, Bitmap>,
+    onDocumentCaptured: (String, Bitmap?) -> Unit
+) {
+    val idFrontLabel = "Valid ID (Front)"
+    val idBackLabel = "Valid ID (Back)"
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp)
     ) {
         Text(
             text = "IDENTIFICATION",
@@ -272,10 +296,24 @@ fun Step3Content() {
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(bottom = 8.dp)
         )
+        Text(
+            text = "Please upload a clear photo of the front and back of a valid ID.",
+            fontSize = 14.sp,
+            color = Color.Gray,
+            modifier = Modifier.padding(bottom = 16.dp)
+        )
 
-        UploadField(label = "Valid Id Front")
+        UploadField(
+            label = idFrontLabel,
+            imageBitmap = bitmaps[idFrontLabel],
+            onDocumentCaptured = { onDocumentCaptured(idFrontLabel, it) }
+        )
         Spacer(modifier = Modifier.height(16.dp))
-        UploadField(label = "Valid Id Back")
+        UploadField(
+            label = idBackLabel,
+            imageBitmap = bitmaps[idBackLabel],
+            onDocumentCaptured = { onDocumentCaptured(idBackLabel, it) }
+        )
     }
 }
 
@@ -317,24 +355,49 @@ fun DropdownField(label: String, options: List<String>) {
 }
 
 @Composable
-fun UploadField(label: String) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(Color.LightGray.copy(alpha = 0.2f))
-            .padding(16.dp)
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+fun UploadField(
+    label: String,
+    imageBitmap: Bitmap?,
+    onDocumentCaptured: (Bitmap?) -> Unit
+) {
+    val cameraLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.TakePicturePreview()
+    ) { bitmap ->
+        onDocumentCaptured(bitmap)
+    }
+
+    Column {
+        Text(text = label, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.SemiBold)
+        Spacer(modifier = Modifier.height(8.dp))
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(200.dp)
+                .clip(RoundedCornerShape(12.dp))
+                .background(MaterialTheme.colorScheme.surfaceVariant)
+                .border(
+                    1.dp,
+                    MaterialTheme.colorScheme.outline,
+                    RoundedCornerShape(12.dp)
+                ),
+            contentAlignment = Alignment.Center
         ) {
-            Text(text = label, fontSize = 16.sp)
-            Button(
-                onClick = { /* TODO: Handle upload */ },
-                colors = ButtonDefaults.buttonColors(containerColor = Color.Blue)
-            ) {
-                Text("Upload", color = Color.White)
+            if (imageBitmap != null) {
+                Image(
+                    bitmap = imageBitmap.asImageBitmap(),
+                    contentDescription = "$label preview",
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop
+                )
+            } else {
+                IconButton(onClick = { cameraLauncher.launch() }) {
+                    Icon(
+                        imageVector = Icons.Default.CameraAlt,
+                        contentDescription = "Take Photo",
+                        modifier = Modifier.size(48.dp),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
             }
         }
     }

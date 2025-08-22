@@ -2,11 +2,10 @@ package com.example.nenaai.data.network
 
 import com.example.nenaai.data.model.*
 import com.example.nenaai.data.model.User
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import retrofit2.Response
-import retrofit2.http.Body
-import retrofit2.http.GET
-import retrofit2.http.Header
-import retrofit2.http.POST
+import retrofit2.http.*
 
 interface ApiService {
     @POST("register/")
@@ -34,4 +33,11 @@ interface ApiService {
 
     @POST("chat/")
     suspend fun postChatMessage(@Body request: ChatRequest): Response<ChatResponse>
+
+    @Multipart
+    @POST("upload-document/")
+    suspend fun uploadDocument(
+        @Part("label") label: RequestBody,
+        @Part document: MultipartBody.Part
+    ): Response<Unit> // Assuming the backend returns an empty success response
 }
