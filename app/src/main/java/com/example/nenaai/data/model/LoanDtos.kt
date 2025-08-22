@@ -17,4 +17,27 @@ data class LoanResponse(
     val created_at: String
 )
 
+data class LoanStatusResponse(
+    val message: String,
+    val phone_number: String,
+    val loan_status: String
+)
+
+data class LoanDetail(
+    val loan_code: String,
+    val loaned_amount: Double,
+    val amount_payable: Double,
+    val monthly_repayment: Double,
+    val months_left: Int,
+    val loan_term: Int,
+    val is_verified_by_bank: Boolean,
+    val created_at: String
+)
+
+data class LoanDetailsResponse(
+    val message: String,
+    val phone_number: String,
+    val loan_status: String,
+    val loans: List<LoanDetail>
+)
 

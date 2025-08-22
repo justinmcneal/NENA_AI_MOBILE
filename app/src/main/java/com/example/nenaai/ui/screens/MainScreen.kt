@@ -42,16 +42,23 @@ import androidx.navigation.compose.currentBackStackEntryAsState // Import curren
 import com.example.nenaai.data.model.NavItem
 import com.example.nenaai.navigation.Screen // Import Screen
 import com.example.nenaai.viewmodel.ChatViewModel
+import com.example.nenaai.viewmodel.LoanStatusViewModel
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen(navController: NavController) { // navController is the parent NavController
+fun MainScreen(navController: NavController, token: String) { // navController is the parent NavController
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     val nestedNavController = rememberNavController() // Nested NavController for bottom tabs
     val navBackStackEntry by nestedNavController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
+    val loanViewModel: LoanStatusViewModel = hiltViewModel()
+    val loanState by loanViewModel.loanDetails.collectAsStateWithLifecycle()
+
+    LaunchedEffect(Unit) {
+        loanViewModel.fetchLoanData(token)
+    }
 
     val navItems = listOf(
         NavItem("Home", Icons.Default.Home, Screen.BottomNav.Home.route),
@@ -130,7 +137,9 @@ fun MainScreen(navController: NavController) { // navController is the parent Na
                 ) {
                     composable(navItems[0].route) {
                         HomeScreen(
-                            onApplyLoanClick = { navController.navigate(Screen.ApplyLoan.route) }
+                            onApplyLoanClick = { navController.navigate(Screen.ApplyLoan.route) },
+                            loanState = loanState,
+                            retryFetch = { loanViewModel.fetchLoanData(token) }
                         )
                     }
                     composable(Screen.BottomNav.Chat.route) {

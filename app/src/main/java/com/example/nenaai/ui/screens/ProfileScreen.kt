@@ -54,15 +54,19 @@ fun ProfileScreen(
         first_name = userProfile!!.first_name ?: "",
         middle_name = userProfile!!.middle_name, // keep nullable
         last_name = userProfile!!.last_name ?: "",
-        verification_status = userProfile!!.verification_status ?: "UNKNOWN"
+        verification_status = userProfile!!.verification_status ?: "UNKNOWN",
+        income = userProfile!!.income,
+        loan_status = userProfile!!.loan_status ?: "NONE"
     ) ?: User(
+        id = 0,
         phone_number = "Loading...",
         first_name = "",
         middle_name = null,
         last_name = "",
-        verification_status = "LOADING"
+        verification_status = "LOADING",
+        income = 0.0,
+        loan_status = "NONE"
     )
-
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -70,36 +74,8 @@ fun ProfileScreen(
         horizontalAlignment = Alignment.Start
     ) {
         // Header with name and Unverified badge
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(Color(0xFF3F51B5)) // Purple background
-                .padding(16.dp)
-        ) {
-            Column {
-                Text(
-                    text = "${currentUser.first_name} ${currentUser.middle_name?.let { "$it " } ?: ""}${currentUser.last_name}",
-                    color = Color.White,
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                if (currentUser.verification_status != "PROFILE_COMPLETE") {
-                    Text(
-                        text = currentUser.verification_status,
-                        color = Color.White,
-                        fontSize = 14.sp,
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(16.dp))
-                            .background(Color.Red)
-                            .padding(horizontal = 8.dp, vertical = 4.dp)
-                            .clickable {
-                                onNavigateToVerification()
-                            }
-                    )
-                }
-            }
-        }
+        // TODO: Fix this once UserInfoCArd is available
+        // UserInfoCard()
 
         Spacer(modifier = Modifier.height(24.dp))
 
