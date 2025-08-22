@@ -7,8 +7,11 @@ import com.example.nenaai.data.model.ProfileCompletionRequest
 import com.example.nenaai.data.model.SetPINRequest
 import com.example.nenaai.data.model.UserRegistrationRequest
 import com.example.nenaai.data.model.ResendOTPRequest
+import com.example.nenaai.data.model.User
 import retrofit2.Response
 import retrofit2.http.Body
+import retrofit2.http.GET
+import retrofit2.http.Header
 import retrofit2.http.POST
 
 interface ApiService {
@@ -29,4 +32,9 @@ interface ApiService {
 
     @POST("login-with-pin/")
     suspend fun loginWithPIN(@Body request: LoginWithPINRequest): Response<AuthResponse>
+
+    @GET("profile/")
+    suspend fun getUserProfile(
+        @Header("Authorization") authorization: String
+    ): Response<User>
 }

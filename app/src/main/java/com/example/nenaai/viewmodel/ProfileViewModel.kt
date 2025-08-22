@@ -26,25 +26,31 @@ class ProfileViewModel @Inject constructor(
     private val _oneTimeEvent = MutableSharedFlow<ProfileOneTimeEvent>()
     val oneTimeEvent: SharedFlow<ProfileOneTimeEvent> = _oneTimeEvent
 
-    // This would ideally come from a dedicated API call to fetch user profile
-    // For now, we'll use a placeholder or data from AuthResponse if available
     private val _userProfile = MutableStateFlow<User?>(null)
     val userProfile: StateFlow<User?> = _userProfile
 
     fun fetchUserProfile() {
-        // In a real app, this would make an API call to get user profile details
-        // For now, we might try to extract from stored AuthResponse or mock it
-        // _profileState.value = ProfileState.Loading
-        // viewModelScope.launch {
-        //     try {
-        //         val user = authRepository.getUserProfile() // Assuming such a function exists
-        //         _userProfile.value = user
-        //         _profileState.value = ProfileState.Success
-        //     } catch (e: Exception) {
-        //         _profileState.value = ProfileState.Error(e.message ?: "Failed to fetch profile")
-        //     }
-        // }
+        viewModelScope.launch {
+            _profileState.value = ProfileState.Loading
+            try {
+                val token = tokenManager.getToken()
+                if (token.isNullOrEmpty()) {
+                    throw Exception("No access token available")
+                }
+
+                val user = authRepository.getUserProfile(token)
+                _userProfile.value = user
+                _profileState.value = ProfileState.Success
+            } catch (e: BackendException) {
+                _profileState.value = ProfileState.Error(e.message ?: "Backend error occurred")
+                _oneTimeEvent.emit(ProfileOneTimeEvent.Error(e.message ?: "Backend error"))
+            } catch (e: Exception) {
+                _profileState.value = ProfileState.Error(e.message ?: "Unexpected error")
+                _oneTimeEvent.emit(ProfileOneTimeEvent.Error(e.message ?: "Unexpected error"))
+            }
+        }
     }
+
 
     fun setPIN(phoneNumber: String, pin: String) {
         viewModelScope.launch {
