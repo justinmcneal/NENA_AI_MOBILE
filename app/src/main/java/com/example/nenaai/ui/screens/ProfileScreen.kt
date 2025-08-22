@@ -1,5 +1,6 @@
 package com.example.nenaai.ui.screens
 
+import android.media.session.MediaSession.Token
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -19,6 +20,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -30,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.nenaai.data.local.TokenManager
 import com.example.nenaai.data.model.User
 import com.example.nenaai.ui.components.CommonSnackbar
 import com.example.nenaai.viewmodel.ProfileViewModel
@@ -42,14 +45,22 @@ fun ProfileScreen(
 ) {
     val userProfile by profileViewModel.userProfile.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
+    LaunchedEffect(Unit) {
+        profileViewModel.fetchUserProfile()
+    }
 
-    // Placeholder user data for now. In a real app, this would be fetched from API.
-    val currentUser = userProfile ?: User(
-        phone_number = "+639123456789",
-        first_name = "John",
-        middle_name = "D.",
-        last_name = "Doe",
-        verification_status = "UNVERIFIED"
+    val currentUser: User = userProfile?.copy(
+        phone_number = userProfile!!.phone_number ?: "Unknown",
+        first_name = userProfile!!.first_name ?: "",
+        middle_name = userProfile!!.middle_name, // keep nullable
+        last_name = userProfile!!.last_name ?: "",
+        verification_status = userProfile!!.verification_status ?: "UNKNOWN"
+    ) ?: User(
+        phone_number = "Loading...",
+        first_name = "",
+        middle_name = null,
+        last_name = "",
+        verification_status = "LOADING"
     )
 
     Column(
@@ -122,7 +133,7 @@ fun ProfileScreen(
         Spacer(modifier = Modifier.height(8.dp))
 
         // Email (Placeholder for now)
-        Column(
+       /*** Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(Color.LightGray.copy(alpha = 0.1f))
@@ -137,7 +148,7 @@ fun ProfileScreen(
                 fontSize = 12.sp,
                 color = Color.Gray
             )
-        }
+        }***/
 
         Spacer(modifier = Modifier.height(8.dp))
 

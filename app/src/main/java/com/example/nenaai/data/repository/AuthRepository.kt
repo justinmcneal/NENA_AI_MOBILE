@@ -10,6 +10,7 @@ import com.example.nenaai.data.model.UserRegistrationRequest
 import com.example.nenaai.data.model.ResendOTPRequest
 import com.example.nenaai.data.model.AuthResponse
 import com.example.nenaai.data.model.BackendErrorResponse
+import com.example.nenaai.data.model.User
 import com.example.nenaai.data.network.BackendException
 import com.google.gson.Gson
 import retrofit2.Response
@@ -65,5 +66,19 @@ class AuthRepository @Inject constructor(private val apiService: ApiService) {
     suspend fun loginWithPIN(phoneNumber: String, pin: String) : AuthResponse {
         val response = apiService.loginWithPIN(LoginWithPINRequest(phoneNumber, pin))
         return handleApiResponse(response)
+    }
+
+    suspend fun getUserProfile(token: String): User {
+        val authHeader = "Bearer $token"
+        Log.d("Auth", "Token: $token")
+        Log.d("Auth", "Authorization Header: $authHeader")
+        val response = apiService.getUserProfile(authHeader)
+        if (response.isSuccessful) {
+            return response.body() ?: throw Exception("Empty profile response")
+        } else {
+            val errorBody = response.errorBody()?.string()
+            Log.e("Auth", "Error response: $errorBody")
+            throw Exception("Failed to fetch profile: $errorBody")
+        }
     }
 }

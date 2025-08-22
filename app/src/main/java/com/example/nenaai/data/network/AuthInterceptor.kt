@@ -20,8 +20,8 @@ class AuthInterceptor @Inject constructor(private val tokenManager: TokenManager
         val isPublicEndpoint = publicEndpoints.any { originalRequest.url.encodedPath.contains(it) }
 
         // Only add Authorization header if it's not a public endpoint
-        if (!isPublicEndpoint) {
-            tokenManager.getToken()?.let {
+        if (!isPublicEndpoint && originalRequest.header("Authorization") == null) {
+            tokenManager.getToken()?.trim()?.let {
                 requestBuilder.addHeader("Authorization", "Bearer $it")
             }
         }
