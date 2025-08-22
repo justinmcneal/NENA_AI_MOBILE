@@ -19,6 +19,7 @@ import com.example.nenaai.viewmodel.ProfileViewModel
 import com.example.nenaai.viewmodel.ProfileOneTimeEvent
 import com.example.nenaai.data.local.TokenManager // Import TokenManager
 import androidx.compose.runtime.LaunchedEffect
+import com.example.nenaai.viewmodel.NavigationEvent
 import javax.inject.Inject // Import Inject
 
 @Composable
@@ -31,35 +32,49 @@ fun NavGraph() {
     // Determine start destination based on saved state
     val startDestination = getStartDestination(tokenManager)
 
+    // This LaunchedEffect handles navigation events from the AuthViewModel.
+    LaunchedEffect(Unit) {
+        authViewModel.navigationEvent.collect { event ->
+            Log.d("NavGraph", "Received NavigationEvent: $event")
+            when (event) {
+                is NavigationEvent.ToOtpVerification -> {
+                    navController.navigate(Screen.OtpVerification.route)
+                }
+                is NavigationEvent.ToPinLogin -> {
+                    navController.navigate(Screen.PinVerification.route)
+                }
+            }
+        }
+    }
+
+    // This LaunchedEffect handles the original flow after OTP verification.
     LaunchedEffect(Unit) { // Observe AuthViewModel's oneTimeEvent for navigation
         authViewModel.oneTimeEvent.collect { event ->
             Log.d("NavGraph", "Received Auth OneTimeEvent: $event")
             when (event) {
                 is OneTimeEvent.Success -> {
                     Log.d("NavGraph", "Auth OneTimeEvent.Success with message: ${event.authResponse.message}")
-                    // Check message for OTP sent success
-                    if (event.authResponse.message == "OTP sent successfully.") {
-                        Log.d("NavGraph", "Navigating to OtpVerificationScreen (OTP sent success)")
-                        navController.navigate(Screen.OtpVerification.route)
-                    } else {
-                        // Handle other success cases based on message or other fields if needed
-                        // For example, if verifyOTP returns success, it might have a different message
-                        when (event.authResponse.user_status) { // Keep existing logic for other statuses
-                            "OTP_VERIFIED" -> {
-                                Log.d("NavGraph", "Navigating to ProfileCompletionScreen")
-                                navController.navigate(Screen.ProfileCompletion.route) {
-                                    popUpTo(Screen.Login.route) { inclusive = true }
-                                }
+                    when (event.authResponse.user_status) { // Keep existing logic for other statuses
+                        "OTP_VERIFIED" -> {
+                            Log.d("NavGraph", "Navigating to ProfileCompletionScreen")
+                            navController.navigate(Screen.ProfileCompletion.route) {
+                                popUpTo(Screen.Login.route) { inclusive = true }
                             }
-                            "PROFILE_COMPLETE" -> {
-                                Log.d("NavGraph", "Navigating to SetPinScreen") // Changed log message
-                                navController.navigate(Screen.SetPin.route) { // Changed navigation route
-                                    popUpTo(Screen.Login.route) { inclusive = true }
-                                }
+                        }
+                        "PROFILE_COMPLETE" -> {
+                            Log.d("NavGraph", "Navigating to SetPinScreen") // Changed log message
+                            navController.navigate(Screen.SetPin.route) { // Changed navigation route
+                                popUpTo(Screen.Login.route) { inclusive = true }
                             }
-                            else -> {
-                                Log.d("NavGraph", "Unhandled user_status or message: ${event.authResponse.user_status} / ${event.authResponse.message}")
+                        }
+                        "PIN_VERIFIED" -> { // Or check for access token
+                            Log.d("NavGraph", "Navigating to MainScreen after PIN login")
+                            navController.navigate(Screen.Main.route) {
+                                popUpTo(Screen.Login.route) { inclusive = true }
                             }
+                        }
+                        else -> {
+                            Log.d("NavGraph", "Unhandled user_status or message: ${event.authResponse.user_status} / ${event.authResponse.message}")
                         }
                     }
                 }

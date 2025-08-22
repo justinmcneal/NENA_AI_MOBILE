@@ -34,7 +34,8 @@ data class AuthResponse(
     val message: String,
     val refresh: String?,
     val access: String?,
-    val user_status: String?
+    val user_status: String?,
+    val is_login_flow: Boolean? // ADDED THIS LINE
 )
 
 data class User(

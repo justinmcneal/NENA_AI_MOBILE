@@ -30,6 +30,9 @@ class AuthViewModel @Inject constructor(
     private val _oneTimeEvent = MutableSharedFlow<OneTimeEvent>()
     val oneTimeEvent: SharedFlow<OneTimeEvent> = _oneTimeEvent
 
+    private val _navigationEvent = MutableSharedFlow<NavigationEvent>()
+    val navigationEvent: SharedFlow<NavigationEvent> = _navigationEvent
+
     init { // ADDED init block
         tokenManager.getPhoneNumber()?.let {
             _phoneNumber.value = it
@@ -57,7 +60,12 @@ class AuthViewModel @Inject constructor(
             Log.d("AuthViewModel", "Registering user with phone number: $phoneNumber")
             try {
                 val response = repository.registerUser(phoneNumber)
-                tokenManager.saveAuthFlowState(TokenManager.KEY_OTP_SENT, true) // Save OTP sent state
+                if (response.is_login_flow == true) {
+                    _navigationEvent.emit(NavigationEvent.ToPinLogin)
+                } else {
+                    tokenManager.saveAuthFlowState(TokenManager.KEY_OTP_SENT, true) // Save OTP sent state
+                    _navigationEvent.emit(NavigationEvent.ToOtpVerification)
+                }
                 _oneTimeEvent.emit(OneTimeEvent.Success(response))
                 _authState.value = AuthState.Idle
             } catch (e: BackendException) {
@@ -158,4 +166,9 @@ sealed class AuthState {
 sealed class OneTimeEvent {
     data class Success(val authResponse: AuthResponse) : OneTimeEvent()
     data class Error(val message: String) : OneTimeEvent()
+}
+
+sealed class NavigationEvent {
+    object ToOtpVerification : NavigationEvent()
+    object ToPinLogin : NavigationEvent()
 }
