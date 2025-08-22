@@ -31,6 +31,16 @@ interface ApiService {
         @Header("Authorization") authorization: String
     ): Response<User>
 
+    @GET("get-loan-status/")
+    suspend fun checkLoanStatus(
+        @Header("Authorization") token: String
+    ): Response<LoanStatusResponse>
+
+    @GET("fetch-loan-details/")
+    suspend fun fetchLoanDetails(
+        @Header("Authorization") token: String
+    ): Response<LoanDetailsResponse>
+
     @POST("http://10.0.2.2:8000/api/loans/apply-loan/")
     suspend fun applyLoan(
         @Body request: ApplyLoanRequest
@@ -44,5 +54,5 @@ interface ApiService {
     suspend fun uploadDocument(
         @Part("label") label: RequestBody,
         @Part document: MultipartBody.Part
-    ): Response<Unit> // Assuming the backend returns an empty success response
+    ): Response<Unit>
 }

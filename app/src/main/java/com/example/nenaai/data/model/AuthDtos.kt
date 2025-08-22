@@ -39,11 +39,14 @@ data class AuthResponse(
 )
 
 data class User(
+    val id: Int,
     val phone_number: String,
     val first_name: String,
     val middle_name: String?,
     val last_name: String,
-    val verification_status: String
+    val verification_status: String,
+    val income: Double?,
+    val loan_status: String
 )
 
 data class BackendErrorResponse(

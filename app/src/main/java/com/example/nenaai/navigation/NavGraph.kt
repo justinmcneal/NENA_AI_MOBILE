@@ -129,7 +129,7 @@ fun NavGraph() {
             PinVerificationScreen(navController = navController, authViewModel = authViewModel)
         }
         composable(Screen.Main.route) {
-            MainScreen(navController)
+            tokenManager.getToken()?.let { it1 -> MainScreen(navController, it1) }
         }
         composable(Screen.VerificationScreen.route){
             VerificationScreen(navController)
@@ -139,7 +139,12 @@ fun NavGraph() {
             val viewModel: ApplyLoanViewModel = hiltViewModel() // or viewModel() if not using Hilt
             ApplyLoanScreen(
                 viewModel = viewModel,
-                onBack = { navController.popBackStack() }
+                onBack = { navController.popBackStack() },
+                onNavigateHome = {
+                    navController.navigate(Screen.Main.route) {
+                        popUpTo(Screen.Login.route) { inclusive = true }
+                    }
+                }
             )
         }
 
