@@ -128,7 +128,11 @@ fun MainScreen(navController: NavController) { // navController is the parent Na
                     startDestination = navItems[0].route,
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    composable(Screen.BottomNav.Home.route) { HomeScreen() }
+                    composable(navItems[0].route) {
+                        HomeScreen(
+                            onApplyLoanClick = { navController.navigate(Screen.ApplyLoan.route) }
+                        )
+                    }
                     composable(Screen.BottomNav.Chat.route) {
                         val chatViewModel: ChatViewModel = hiltViewModel()
                         val messages by chatViewModel.messages.collectAsStateWithLifecycle()

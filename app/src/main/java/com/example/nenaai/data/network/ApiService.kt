@@ -31,6 +31,11 @@ interface ApiService {
         @Header("Authorization") authorization: String
     ): Response<User>
 
+    @POST("http://10.0.2.2:8000/api/loans/apply-loan/")
+    suspend fun applyLoan(
+        @Body request: ApplyLoanRequest
+    ): Response<LoanResponse>
+
     @POST("chat/")
     suspend fun postChatMessage(@Body request: ChatRequest): Response<ChatResponse>
 
