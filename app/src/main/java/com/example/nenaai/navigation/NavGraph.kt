@@ -19,6 +19,8 @@ import com.example.nenaai.viewmodel.ProfileViewModel
 import com.example.nenaai.viewmodel.ProfileOneTimeEvent
 import com.example.nenaai.data.local.TokenManager // Import TokenManager
 import androidx.compose.runtime.LaunchedEffect
+import com.example.nenaai.ui.screens.ApplyLoanScreen
+import com.example.nenaai.viewmodel.ApplyLoanViewModel
 import com.example.nenaai.viewmodel.NavigationEvent
 import javax.inject.Inject // Import Inject
 
@@ -132,6 +134,15 @@ fun NavGraph() {
         composable(Screen.VerificationScreen.route){
             VerificationScreen(navController)
         }
+
+        composable(Screen.ApplyLoan.route) {
+            val viewModel: ApplyLoanViewModel = hiltViewModel() // or viewModel() if not using Hilt
+            ApplyLoanScreen(
+                viewModel = viewModel,
+                onBack = { navController.popBackStack() }
+            )
+        }
+
     }
 }
 

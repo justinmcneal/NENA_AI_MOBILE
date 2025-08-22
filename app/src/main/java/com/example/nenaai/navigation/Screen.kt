@@ -9,6 +9,9 @@ sealed class Screen(val route: String) {
     object VerificationScreen : Screen("verification_screen")
     object PinVerification : Screen("pin_verification_screen")
 
+    object ApplyLoan : Screen("apply_loan")
+
+
     // Nested routes for Bottom Navigation
     object BottomNav {
         object Home : Screen("home_tab")
