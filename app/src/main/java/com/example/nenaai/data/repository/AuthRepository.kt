@@ -2,14 +2,7 @@ package com.example.nenaai.data.repository
 
 import android.util.Log
 import com.example.nenaai.data.network.ApiService
-import com.example.nenaai.data.model.LoginWithPINRequest
-import com.example.nenaai.data.model.OTPVerificationRequest
-import com.example.nenaai.data.model.ProfileCompletionRequest
-import com.example.nenaai.data.model.SetPINRequest
-import com.example.nenaai.data.model.UserRegistrationRequest
-import com.example.nenaai.data.model.ResendOTPRequest
-import com.example.nenaai.data.model.AuthResponse
-import com.example.nenaai.data.model.BackendErrorResponse
+import com.example.nenaai.data.model.*
 import com.example.nenaai.data.model.User
 import com.example.nenaai.data.network.BackendException
 import com.google.gson.Gson
@@ -80,5 +73,11 @@ class AuthRepository @Inject constructor(private val apiService: ApiService) {
             Log.e("Auth", "Error response: $errorBody")
             throw Exception("Failed to fetch profile: $errorBody")
         }
+    }
+
+    suspend fun sendMessage(message: String): ChatResponse {
+        val request = ChatRequest(message)
+        val response = apiService.postChatMessage(request)
+        return handleApiResponse(response)
     }
 }

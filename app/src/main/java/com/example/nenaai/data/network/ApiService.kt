@@ -1,12 +1,6 @@
 package com.example.nenaai.data.network
 
-import com.example.nenaai.data.model.AuthResponse
-import com.example.nenaai.data.model.LoginWithPINRequest
-import com.example.nenaai.data.model.OTPVerificationRequest
-import com.example.nenaai.data.model.ProfileCompletionRequest
-import com.example.nenaai.data.model.SetPINRequest
-import com.example.nenaai.data.model.UserRegistrationRequest
-import com.example.nenaai.data.model.ResendOTPRequest
+import com.example.nenaai.data.model.*
 import com.example.nenaai.data.model.User
 import retrofit2.Response
 import retrofit2.http.Body
@@ -37,4 +31,7 @@ interface ApiService {
     suspend fun getUserProfile(
         @Header("Authorization") authorization: String
     ): Response<User>
+
+    @POST("chat/")
+    suspend fun postChatMessage(@Body request: ChatRequest): Response<ChatResponse>
 }
