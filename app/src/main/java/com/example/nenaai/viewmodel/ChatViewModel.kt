@@ -3,6 +3,7 @@ package com.example.nenaai.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.nenaai.data.model.ChatMessage
+import com.example.nenaai.data.repository.ChatRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -11,7 +12,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ChatViewModel @Inject constructor(
-    // private val repository: ChatRepository // Will be added later
+    private val repository: ChatRepository
 ) : ViewModel() {
 
     private val _messages = MutableStateFlow<List<ChatMessage>>(emptyList())
@@ -25,15 +26,23 @@ class ChatViewModel @Inject constructor(
     }
 
     fun sendMessage(text: String) {
+        if (text.isBlank()) return
+
         // Add the user's message immediately
         val userMessage = ChatMessage(text, isFromUser = true)
         _messages.value = _messages.value + userMessage
 
-        // Launch a coroutine to simulate a network call and get the AI's response
+        // Launch a coroutine to get the AI's response from the repository
         viewModelScope.launch {
-            // TODO: Replace this with a real repository call
-            val aiResponse = ChatMessage("This is a simulated response from NENA AI.", isFromUser = false)
-            _messages.value = _messages.value + aiResponse
+            try {
+                val response = repository.sendMessage(text)
+                val aiResponse = ChatMessage(response.reply, isFromUser = false)
+                _messages.value = _messages.value + aiResponse
+            } catch (e: Exception) {
+                // Handle error, e.g., show an error message in the chat
+                val errorResponse = ChatMessage("Sorry, I encountered an error. Please try again.", isFromUser = false)
+                _messages.value = _messages.value + errorResponse
+            }
         }
     }
 }

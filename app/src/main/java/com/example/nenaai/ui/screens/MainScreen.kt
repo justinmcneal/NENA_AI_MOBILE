@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Face
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Person
@@ -31,6 +32,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost // Import NavHost
 import androidx.navigation.compose.composable // Import composable
@@ -38,6 +41,7 @@ import androidx.navigation.compose.rememberNavController // Import rememberNavCo
 import androidx.navigation.compose.currentBackStackEntryAsState // Import currentBackStackEntryAsState
 import com.example.nenaai.data.model.NavItem
 import com.example.nenaai.navigation.Screen // Import Screen
+import com.example.nenaai.viewmodel.ChatViewModel
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -51,6 +55,7 @@ fun MainScreen(navController: NavController) { // navController is the parent Na
 
     val navItems = listOf(
         NavItem("Home", Icons.Default.Home, Screen.BottomNav.Home.route),
+        NavItem("Chat", Icons.Default.Face, Screen.BottomNav.Chat.route),
         NavItem("Profile", Icons.Default.Person, Screen.BottomNav.Profile.route)
     )
 
@@ -89,19 +94,13 @@ fun MainScreen(navController: NavController) { // navController is the parent Na
                         NavigationBarItem(
                             icon = { Icon(item.icon, contentDescription = item.label) },
                             label = { Text(item.label) },
-                            selected = currentRoute == item.route, // Use currentRoute for selection
+                            selected = currentRoute == item.route,
                             onClick = {
                                 nestedNavController.navigate(item.route) {
-                                    // Pop up to the start destination of the graph to
-                                    // avoid building up a large stack of destinations
-                                    // on the back stack as users select items
                                     popUpTo(nestedNavController.graph.startDestinationId) {
                                         saveState = true
                                     }
-                                    // Avoid multiple copies of the same destination when
-                                    // reselecting the same item
                                     launchSingleTop = true
-                                    // Restore state when reselecting previously selected item
                                     restoreState = true
                                 }
                             }
@@ -109,9 +108,12 @@ fun MainScreen(navController: NavController) { // navController is the parent Na
                     }
                 }
             },
+            // ✅ FAB only shows if you're NOT in Chat route
             floatingActionButton = {
-                FloatingActionButton(onClick = { /* TODO: Add action */ }) {
-                    Icon(Icons.Default.Add, contentDescription = "Add")
+                if (currentRoute != Screen.BottomNav.Chat.route) {
+                    FloatingActionButton(onClick = { /* TODO: Add action */ }) {
+                        Icon(Icons.Default.Add, contentDescription = "Add")
+                    }
                 }
             }
         ) { paddingValues ->
@@ -123,17 +125,24 @@ fun MainScreen(navController: NavController) { // navController is the parent Na
             ) {
                 NavHost(
                     navController = nestedNavController,
-                    startDestination = navItems[0].route, // Start with the first tab
+                    startDestination = navItems[0].route,
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    composable(navItems[0].route) { HomeScreen() } // Home tab
-                    composable(navItems[1].route) {
+                    composable(Screen.BottomNav.Home.route) { HomeScreen() }
+                    composable(Screen.BottomNav.Chat.route) {
+                        val chatViewModel: ChatViewModel = hiltViewModel()
+                        val messages by chatViewModel.messages.collectAsStateWithLifecycle()
+                        ChatScreen(
+                            messages = messages,
+                            onSendMessage = { chatViewModel.sendMessage(it) }
+                        )
+                    }
+                    composable(Screen.BottomNav.Profile.route) {
                         ProfileScreen(
                             onNavigateToSetPin = { navController.navigate(Screen.SetPin.route) },
                             onNavigateToVerification = { navController.navigate(Screen.VerificationScreen.route) }
                         )
                     }
-                    // Add other nested composables here if needed
                 }
             }
         }

@@ -74,10 +74,4 @@ class AuthRepository @Inject constructor(private val apiService: ApiService) {
             throw Exception("Failed to fetch profile: $errorBody")
         }
     }
-
-    suspend fun sendMessage(message: String): ChatResponse {
-        val request = ChatRequest(message)
-        val response = apiService.postChatMessage(request)
-        return handleApiResponse(response)
-    }
 }
