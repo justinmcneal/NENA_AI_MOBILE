@@ -14,16 +14,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-//import androidx.compose.ui.text.input.TextFieldDefaults
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.nenaai.data.model.ChatMessage
 import com.example.nenaai.ui.theme.NENA_AI_MOBILETheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChatScreen(
-    // Will be provided by a ViewModel later
     messages: List<ChatMessage>,
     onSendMessage: (String) -> Unit
 ) {
@@ -32,7 +32,13 @@ fun ChatScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("NENA AI Assistant") },
+                title = {
+                    Text(
+                        "NENA AI Assistant",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 20.sp
+                    )
+                },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primary,
                     titleContentColor = MaterialTheme.colorScheme.onPrimary
@@ -40,22 +46,26 @@ fun ChatScreen(
             )
         },
         bottomBar = {
-            MessageInput(text = textInput, onTextChange = { textInput = it }, onSendMessage = {
-                onSendMessage(textInput)
-                textInput = ""
-            })
+            MessageInput(
+                text = textInput,
+                onTextChange = { textInput = it },
+                onSendMessage = {
+                    onSendMessage(textInput)
+                    textInput = ""
+                }
+            )
         }
     ) { paddingValues ->
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(horizontal = 16.dp),
-            reverseLayout = true // To show the latest message at the bottom
+                .padding(horizontal = 12.dp),
+            reverseLayout = true
         ) {
             items(messages.reversed()) { message ->
                 MessageBubble(message = message)
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(6.dp))
             }
         }
     }
@@ -64,9 +74,11 @@ fun ChatScreen(
 @Composable
 fun MessageBubble(message: ChatMessage) {
     val bubbleColor =
-        if (message.isFromUser) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant
+        if (message.isFromUser) MaterialTheme.colorScheme.primary
+        else MaterialTheme.colorScheme.surfaceVariant
     val textColor =
-        if (message.isFromUser) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant
+        if (message.isFromUser) MaterialTheme.colorScheme.onPrimary
+        else MaterialTheme.colorScheme.onSurfaceVariant
     val alignment =
         if (message.isFromUser) Alignment.CenterEnd else Alignment.CenterStart
 
@@ -74,19 +86,24 @@ fun MessageBubble(message: ChatMessage) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(
-                start = if (message.isFromUser) 64.dp else 0.dp,
-                end = if (message.isFromUser) 0.dp else 64.dp
+                start = if (message.isFromUser) 48.dp else 0.dp,
+                end = if (message.isFromUser) 0.dp else 48.dp
             ),
         contentAlignment = alignment
     ) {
-        Text(
-            text = message.text,
-            color = textColor,
-            modifier = Modifier
-                .clip(RoundedCornerShape(12.dp))
-                .background(bubbleColor)
-                .padding(12.dp)
-        )
+        Surface(
+            color = bubbleColor,
+            shape = RoundedCornerShape(18.dp),
+            tonalElevation = 2.dp,
+            shadowElevation = 2.dp
+        ) {
+            Text(
+                text = message.text,
+                color = textColor,
+                modifier = Modifier.padding(12.dp),
+                fontSize = 16.sp
+            )
+        }
     }
 }
 
@@ -105,10 +122,14 @@ fun MessageInput(
         TextField(
             value = text,
             onValueChange = onTextChange,
-            modifier = Modifier.weight(1f),
+            modifier = Modifier
+                .weight(1f)
+                .clip(RoundedCornerShape(24.dp)),
             placeholder = { Text("Ask NENA a question...") },
-            shape = RoundedCornerShape(24.dp),
+            singleLine = true,
             colors = TextFieldDefaults.colors(
+                focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
                 focusedIndicatorColor = Color.Transparent,
                 unfocusedIndicatorColor = Color.Transparent,
                 disabledIndicatorColor = Color.Transparent
@@ -119,6 +140,7 @@ fun MessageInput(
             onClick = onSendMessage,
             enabled = text.isNotBlank(),
             modifier = Modifier
+                .size(48.dp)
                 .clip(CircleShape)
                 .background(MaterialTheme.colorScheme.primary)
         ) {
@@ -131,8 +153,8 @@ fun MessageInput(
     }
 }
 
-@Preview(showBackground = true)
 @Composable
+@Preview(showBackground = true)
 fun ChatScreenPreview() {
     NENA_AI_MOBILETheme {
         val sampleMessages = listOf(

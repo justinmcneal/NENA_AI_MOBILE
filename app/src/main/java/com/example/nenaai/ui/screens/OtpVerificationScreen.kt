@@ -105,7 +105,7 @@ fun OtpVerificationScreen(navController: NavController, authViewModel: AuthViewM
         Spacer(modifier = Modifier.height(8.dp))
 
         Text(
-            text = "Enter the 6-digit code sent to +63 $phoneNumber",
+            text = "Enter the 6-digit code sent to $phoneNumber",
             style = MaterialTheme.typography.bodyLarge,
             textAlign = TextAlign.Center,
             color = MaterialTheme.colorScheme.onSurfaceVariant,

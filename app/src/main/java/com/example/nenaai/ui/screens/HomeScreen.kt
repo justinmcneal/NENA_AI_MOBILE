@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
@@ -41,7 +42,8 @@ fun HomeScreen(
         modifier = Modifier
             .fillMaxWidth()
             .background(MaterialTheme.colorScheme.background)
-            .padding(16.dp),
+            .padding(16.dp)
+           ,
         contentAlignment = Alignment.Center
     ) {
         Column(
@@ -62,7 +64,7 @@ fun HomeScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = 16.dp),
-                        shape = RoundedCornerShape(12.dp),
+                        shape = RoundedCornerShape(12   .dp),
                         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
                         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
                     ) {
@@ -125,15 +127,15 @@ fun HomeScreen(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(horizontal = 16.dp),
-                            shape = RoundedCornerShape(12.dp),
-                            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                            shape = RoundedCornerShape(20.dp),
+                            elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
                             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
                         ) {
                             Column(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(16.dp),
-                                verticalArrangement = Arrangement.spacedBy(12.dp)
+                                    .padding(20.dp),
+                                verticalArrangement = Arrangement.spacedBy(16.dp)
                             ) {
                                 if (status in listOf("PENDING", "ACTIVE") && loanDetails.loans.isNotEmpty()) {
                                     // Display tracker for the most recent loan
@@ -144,7 +146,7 @@ fun HomeScreen(
                                         color = MaterialTheme.colorScheme.primary
                                     )
                                     Divider(
-                                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f),
+                                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f),
                                         thickness = 1.dp
                                     )
                                     // Loan Details
