@@ -19,12 +19,14 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.view.drawToBitmap
 import com.example.nenaai.ui.components.LoanConfirmationCard
 import com.example.nenaai.viewmodel.ApplyLoanViewModel
 import kotlinx.coroutines.delay
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ApplyLoanScreen(
     viewModel: ApplyLoanViewModel,
@@ -35,9 +37,17 @@ fun ApplyLoanScreen(
     var loanAmount by remember { mutableStateOf("") }
     var loanTerm by remember { mutableStateOf("") }
 
+    var incomeError by remember { mutableStateOf<String?>(null) }
+    var amountError by remember { mutableStateOf<String?>(null) }
+    var termError by remember { mutableStateOf<String?>(null) }
+
     val loanResponse by viewModel.loanResponse.collectAsState()
     val error by viewModel.error.collectAsState()
     val context = LocalContext.current
+
+    // Dropdown state for loan term
+    var expanded by remember { mutableStateOf(false) }
+    val loanTermOptions = listOf("6", "12", "18", "24", "36")
 
     // Trigger to capture receipt
     var captureTrigger by remember { mutableStateOf(false) }
@@ -61,45 +71,107 @@ fun ApplyLoanScreen(
 
         // Loan form (only if no response yet)
         if (loanResponse == null) {
+            // Monthly Income
             OutlinedTextField(
                 value = monthlyIncome,
-                onValueChange = { monthlyIncome = it },
+                onValueChange = {
+                    monthlyIncome = it
+                    incomeError = if (it.toIntOrNull() != null && it.toInt() >= 5000) null
+                    else "Income must be at least 5,000"
+                },
                 label = { Text("Monthly Income") },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                isError = incomeError != null
             )
+            incomeError?.let {
+                Text(text = it, color = Color.Red, style = MaterialTheme.typography.bodySmall)
+            }
+
+            // Loan Amount
             OutlinedTextField(
                 value = loanAmount,
-                onValueChange = { loanAmount = it },
+                onValueChange = {
+                    loanAmount = it
+                    val amount = it.toIntOrNull()
+                    amountError = if (amount != null && amount in 5000..300000) null
+                    else "Loan amount must be between 5,000 and 300,000"
+                },
                 label = { Text("Loan Amount Request") },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                isError = amountError != null
             )
-            OutlinedTextField(
-                value = loanTerm,
-                onValueChange = { loanTerm = it },
-                label = { Text("Loan Term (months)") },
-                modifier = Modifier.fillMaxWidth()
-            )
+            amountError?.let {
+                Text(text = it, color = Color.Red, style = MaterialTheme.typography.bodySmall)
+            }
+
+            // Loan Term Dropdown
+            ExposedDropdownMenuBox(
+                expanded = expanded,
+                onExpandedChange = { expanded = !expanded }
+            ) {
+                OutlinedTextField(
+                    value = loanTerm,
+                    onValueChange = {},
+                    readOnly = true,
+                    label = { Text("Loan Term (months)") },
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
+                    modifier = Modifier
+                        .menuAnchor()
+                        .fillMaxWidth(),
+                    isError = termError != null
+                )
+
+                ExposedDropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false }
+                ) {
+                    loanTermOptions.forEach { option ->
+                        DropdownMenuItem(
+                            text = { Text(option) },
+                            onClick = {
+                                loanTerm = option
+                                termError = null
+                                expanded = false
+                            }
+                        )
+                    }
+                }
+            }
+            termError?.let {
+                Text(text = it, color = Color.Red, style = MaterialTheme.typography.bodySmall)
+            }
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            // Button enabled only if valid
+            val isFormValid = incomeError == null &&
+                    amountError == null &&
+                    termError == null &&
+                    monthlyIncome.isNotBlank() &&
+                    loanAmount.isNotBlank() &&
+                    loanTerm.isNotBlank()
+
             Button(
                 onClick = {
-                    if (monthlyIncome.isNotEmpty() && loanAmount.isNotEmpty() && loanTerm.isNotEmpty()) {
+                    val income = monthlyIncome.toDoubleOrNull() ?: 0.0
+                    val amount = loanAmount.toDoubleOrNull() ?: 0.0
+
+                    if (income >= 5000.0 && amount in 5000.0..300000.0 && loanTerm in loanTermOptions) {
                         viewModel.applyLoan(
-                            monthlyIncome.toDouble(),
-                            loanAmount.toDouble(),
-                            loanTerm.toInt()
+                            monthlyIncome = income,
+                            loanedAmount = amount,
+                            loanTerm = loanTerm.toInt()
                         )
+                    } else {
+                        if (income < 5000.0) incomeError = "Income must be at least 5,000"
+                        if (amount !in 5000.0..300000.0) amountError = "Loan amount must be between 5,000 and 300,000"
+                        if (loanTerm.isBlank()) termError = "Please select a loan term"
                     }
                 },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                enabled = isFormValid
             ) {
-                Text("Submit Loan Application")
-            }
-
-            error?.let {
-                Spacer(modifier = Modifier.height(8.dp))
-                Text("Error: $it", color = Color.Red)
+                Text("Submit Loan Request")
             }
         } else {
             // Show Loan Confirmation Card
