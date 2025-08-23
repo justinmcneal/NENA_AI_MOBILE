@@ -27,7 +27,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.*
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -35,27 +36,28 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import androidx.navigation.compose.NavHost // Import NavHost
-import androidx.navigation.compose.composable // Import composable
-import androidx.navigation.compose.rememberNavController // Import rememberNavController
-import androidx.navigation.compose.currentBackStackEntryAsState // Import currentBackStackEntryAsState
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.nenaai.data.model.NavItem
-import com.example.nenaai.navigation.Screen // Import Screen
+import com.example.nenaai.navigation.Screen
 import com.example.nenaai.viewmodel.ChatViewModel
 import com.example.nenaai.viewmodel.LoanStatusViewModel
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen(navController: NavController, token: String) { // navController is the parent NavController
+fun MainScreen(navController: NavController, token: String) {
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
-    val nestedNavController = rememberNavController() // Nested NavController for bottom tabs
+    val nestedNavController = rememberNavController()
     val navBackStackEntry by nestedNavController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
     val loanViewModel: LoanStatusViewModel = hiltViewModel()
     val loanState by loanViewModel.loanDetails.collectAsStateWithLifecycle()
 
+    // Initial fetch
     LaunchedEffect(Unit) {
         loanViewModel.fetchLoanData(token)
     }
@@ -115,10 +117,9 @@ fun MainScreen(navController: NavController, token: String) { // navController i
                     }
                 }
             },
-            // ✅ FAB only shows if you're NOT in Chat route
             floatingActionButton = {
                 if (currentRoute != Screen.BottomNav.Chat.route) {
-                    FloatingActionButton(onClick = { /* TODO: Add action */ }) {
+                    FloatingActionButton(onClick = { /* TODO */ }) {
                         Icon(Icons.Default.Add, contentDescription = "Add")
                     }
                 }
