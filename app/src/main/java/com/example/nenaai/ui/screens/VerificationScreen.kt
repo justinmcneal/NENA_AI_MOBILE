@@ -116,7 +116,7 @@ fun VerificationScreen(
                     if (currentStep < 3) currentStep++ else {
                         viewModel.submitVerification()
                         navController.navigate(Screen.Main.route){
-                            popUpTo(Screen.VerificationScreen.route){
+                            popUpTo(Screen.Verification.route){
                                 inclusive = true
                             }
                         }

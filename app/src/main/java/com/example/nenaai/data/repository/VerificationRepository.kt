@@ -17,22 +17,23 @@ class VerificationRepository @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
 
-    suspend fun uploadDocument(label: String, bitmap: Bitmap) {
-        val file = bitmapToFile(bitmap, "${label.replace(" ", "_")}.jpg")
-        
-        // Create RequestBody for the label
-        val labelRequestBody = label.toRequestBody("text/plain".toMediaTypeOrNull())
-        
+    suspend fun uploadDocument(documentType: String, bitmap: Bitmap) {
+        val file = bitmapToFile(bitmap, "${documentType.replace(" ", "_")}.jpg")
+
+        // Create RequestBody for the document type
+        val documentTypeRequestBody = documentType.toRequestBody("text/plain".toMediaTypeOrNull())
+
         // Create MultipartBody.Part for the file
         val fileRequestBody = file.asRequestBody("image/jpeg".toMediaTypeOrNull())
-        val documentPart = MultipartBody.Part.createFormData("document", file.name, fileRequestBody)
+        val filePart = MultipartBody.Part.createFormData("file", file.name, fileRequestBody)
 
         // Make the API call
-        apiService.uploadDocument(labelRequestBody, documentPart)
-        
+        apiService.uploadDocument(documentTypeRequestBody, filePart)
+
         // Clean up the temporary file
         file.delete()
     }
+
 
     private fun bitmapToFile(bitmap: Bitmap, fileName: String): File {
         val file = File(context.cacheDir, fileName)

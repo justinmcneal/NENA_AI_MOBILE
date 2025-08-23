@@ -172,6 +172,32 @@ fun ProfileScreen(
             )
         }
 
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // Verification
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(Color.LightGray.copy(alpha = 0.1f))
+                .clip(RoundedCornerShape(12.dp))
+                .clickable {
+                    onNavigateToVerification()
+                }
+                .padding(12.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "Verification",
+                fontSize = 16.sp
+            )
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                contentDescription = "Arrow",
+                tint = Color.Gray
+            )
+        }
+
         Spacer(modifier = Modifier.height(24.dp))
 
         Text(

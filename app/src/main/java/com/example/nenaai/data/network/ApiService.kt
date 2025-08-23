@@ -50,9 +50,9 @@ interface ApiService {
     suspend fun postChatMessage(@Body request: ChatRequest): Response<ChatResponse>
 
     @Multipart
-    @POST("upload-document/")
+    @POST("http://10.0.2.2:8000/api/documents/upload/")
     suspend fun uploadDocument(
-        @Part("label") label: RequestBody,
-        @Part document: MultipartBody.Part
+        @Part("document_type") documentType: RequestBody,
+        @Part file: MultipartBody.Part
     ): Response<Unit>
 }

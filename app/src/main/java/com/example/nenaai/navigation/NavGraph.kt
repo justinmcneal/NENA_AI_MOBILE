@@ -19,6 +19,7 @@ import com.example.nenaai.viewmodel.ProfileViewModel
 import com.example.nenaai.viewmodel.ProfileOneTimeEvent
 import com.example.nenaai.data.local.TokenManager // Import TokenManager
 import androidx.compose.runtime.LaunchedEffect
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nenaai.ui.screens.ApplyLoanScreen
 import com.example.nenaai.viewmodel.ApplyLoanViewModel
 import com.example.nenaai.viewmodel.NavigationEvent
@@ -131,8 +132,8 @@ fun NavGraph() {
         composable(Screen.Main.route) {
             tokenManager.getToken()?.let { it1 -> MainScreen(navController, it1) }
         }
-        composable(Screen.VerificationScreen.route){
-            VerificationScreen(navController)
+        composable(Screen.Verification.route){
+            VerificationScreen(navController = navController)
         }
 
         composable(Screen.ApplyLoan.route) {

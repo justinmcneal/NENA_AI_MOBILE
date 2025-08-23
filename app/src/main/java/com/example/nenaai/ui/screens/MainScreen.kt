@@ -153,7 +153,7 @@ fun MainScreen(navController: NavController, token: String) { // navController i
                     composable(Screen.BottomNav.Profile.route) {
                         ProfileScreen(
                             onNavigateToSetPin = { navController.navigate(Screen.SetPin.route) },
-                            onNavigateToVerification = { navController.navigate(Screen.VerificationScreen.route) }
+                            onNavigateToVerification = { navController.navigate(Screen.Verification.route) }
                         )
                     }
                 }
