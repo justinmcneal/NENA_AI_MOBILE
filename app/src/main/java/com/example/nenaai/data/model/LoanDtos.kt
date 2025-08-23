@@ -31,9 +31,10 @@ data class LoanDetail(
     val months_left: Int,
     val loan_term: Int,
     val status: String,
+    val next_repayment_due_date: String,
+    val repayment_status: String,
     val created_at: String
 )
-
 data class LoanDetailsResponse(
     val message: String,
     val phone_number: String,

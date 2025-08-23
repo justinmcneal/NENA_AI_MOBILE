@@ -260,6 +260,48 @@ fun HomeScreen(
                                             fontWeight = FontWeight.Medium
                                         )
                                     }
+
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceBetween
+                                    ) {
+                                        Text(
+                                            text = "Next Payment:",
+                                            style = MaterialTheme.typography.labelMedium,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                        Text(
+                                            text = latestLoan.next_repayment_due_date ?: "N/A",
+                                            style = MaterialTheme.typography.bodyLarge,
+                                            fontWeight = FontWeight.Medium
+                                        )
+                                    }
+
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceBetween
+                                    ) {
+                                        Text(
+                                            text = "Repayment Status:",
+                                            style = MaterialTheme.typography.labelMedium,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                        Text(
+                                            text = when (latestLoan.repayment_status) {
+                                                "ON_TIME" -> "On Time"
+                                                "OVERDUE" -> "Overdue"
+                                                else -> "N/A"
+                                            },
+                                            style = MaterialTheme.typography.bodyLarge,
+                                            color = when (latestLoan.repayment_status) {
+                                                "ON_TIME" -> Color(0xFF4CAF50) // Green
+                                                "OVERDUE" -> Color(0xFFF44336) // Red
+                                                else -> MaterialTheme.colorScheme.onSurface
+                                            },
+                                            fontWeight = FontWeight.Medium
+                                        )
+                                    }
+
                                     Row(
                                         modifier = Modifier.fillMaxWidth(),
                                         horizontalArrangement = Arrangement.SpaceBetween,
