@@ -24,11 +24,16 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.example.nenaai.viewmodel.LoanStatusViewModel
 import kotlin.math.min
 
@@ -38,6 +43,20 @@ fun HomeScreen(
     loanState: LoanStatusViewModel.LoanDetailsState,
     retryFetch: () -> Unit
 ) {
+    val lifecycleOwner = LocalLifecycleOwner.current
+
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                retryFetch()
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -251,22 +270,38 @@ fun HomeScreen(
                                             style = MaterialTheme.typography.labelMedium,
                                             color = MaterialTheme.colorScheme.onSurfaceVariant
                                         )
+                                        val statusColor = when (latestLoan.status) {
+                                            "APPROVED" -> MaterialTheme.colorScheme.primary
+                                            "REJECTED" -> MaterialTheme.colorScheme.error
+                                            "PENDING" -> MaterialTheme.colorScheme.tertiary
+                                            else -> MaterialTheme.colorScheme.onSurfaceVariant
+                                        }
+
+                                        val statusText = when (latestLoan.status) {
+                                            "APPROVED" -> "Approved"
+                                            "REJECTED" -> "Rejected"
+                                            "PENDING" -> "Pending"
+                                            else -> "Unknown"
+                                        }
+
                                         Row(
-                                            verticalAlignment = Alignment.CenterVertically
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            modifier = Modifier.padding(vertical = 4.dp)
                                         ) {
                                             Icon(
                                                 imageVector = Icons.Default.Star,
                                                 contentDescription = "Verification Status",
-                                                tint = if (latestLoan.is_verified_by_bank) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
+                                                tint = statusColor,
                                                 modifier = Modifier.padding(end = 4.dp)
                                             )
                                             Text(
-                                                text = if (latestLoan.is_verified_by_bank) "Verified" else "Pending",
+                                                text = statusText,
                                                 style = MaterialTheme.typography.bodyLarge,
-                                                color = if (latestLoan.is_verified_by_bank) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
+                                                color = statusColor,
                                                 fontWeight = FontWeight.Medium
                                             )
                                         }
+
                                     }
                                     Spacer(modifier = Modifier.height(8.dp))
                                     Divider(

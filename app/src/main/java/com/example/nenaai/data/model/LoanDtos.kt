@@ -30,7 +30,7 @@ data class LoanDetail(
     val monthly_repayment: Double,
     val months_left: Int,
     val loan_term: Int,
-    val is_verified_by_bank: Boolean,
+    val status: String,
     val created_at: String
 )
 
