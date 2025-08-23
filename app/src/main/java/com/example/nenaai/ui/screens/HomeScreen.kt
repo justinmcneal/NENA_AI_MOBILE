@@ -11,7 +11,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Star
@@ -44,6 +46,7 @@ fun HomeScreen(
     retryFetch: () -> Unit
 ) {
     val lifecycleOwner = LocalLifecycleOwner.current
+    val scrollState = rememberScrollState()
 
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
@@ -66,7 +69,9 @@ fun HomeScreen(
         contentAlignment = Alignment.Center
     ) {
         Column(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .verticalScroll(scrollState),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
@@ -345,11 +350,38 @@ fun HomeScreen(
                                         }
 
                                     }
+                                    if (status == "PENDING" || (status == "ACTIVE" && latestLoan.months_left == latestLoan.loan_term)) {
+                                        Spacer(modifier = Modifier.height(12.dp))
+                                        Card(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            shape = RoundedCornerShape(12.dp),
+                                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer)
+                                        ) {
+                                            Column(
+                                                modifier = Modifier.padding(12.dp),
+                                                verticalArrangement = Arrangement.spacedBy(8.dp)
+                                            ) {
+                                                Text(
+                                                    text = "Next Steps",
+                                                    style = MaterialTheme.typography.titleMedium,
+                                                    color = MaterialTheme.colorScheme.onTertiaryContainer,
+                                                    fontWeight = FontWeight.SemiBold
+                                                )
+                                                Text(
+                                                    text = "Please bring your downloaded loan receipt or loan code to the nearest BPI branch to claim your loan once approved.",
+                                                    style = MaterialTheme.typography.bodyMedium,
+                                                    color = MaterialTheme.colorScheme.onTertiaryContainer
+                                                )
+                                            }
+                                        }
+                                    }
+
                                     Spacer(modifier = Modifier.height(8.dp))
                                     Divider(
                                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f),
                                         thickness = 1.dp
                                     )
+
                                     Text(
                                         text = "Repayment Progress",
                                         style = MaterialTheme.typography.titleMedium,

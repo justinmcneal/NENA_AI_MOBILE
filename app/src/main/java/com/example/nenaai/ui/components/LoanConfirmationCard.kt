@@ -64,7 +64,7 @@ fun LoanConfirmationCard(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Text(
-                    text = "Please take a screenshot or download this receipt and present it to the nearest BPI Branch once your loan is approved.",
+                    text = "Please take a screenshot or download this receipt and present it to the nearest BPI Branch once your loan is approved to claim your loan.",
                     style = MaterialTheme.typography.bodySmall,
                     color = Color.DarkGray
                 )
