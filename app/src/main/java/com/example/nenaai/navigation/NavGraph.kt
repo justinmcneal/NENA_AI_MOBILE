@@ -156,6 +156,9 @@ fun NavGraph() {
         composable(Screen.IncomeRecordList.route) {
             IncomeRecordListScreen(onBack = { navController.popBackStack() })
         }
+        composable(Screen.UserAnalytics.route) {
+            UserAnalyticsScreen(onBack = { navController.popBackStack() })
+        }
 
     }
 }

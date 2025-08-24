@@ -6,6 +6,7 @@ import com.example.nenaai.data.model.LoanResponse
 import com.example.nenaai.data.model.LoanStatusResponse
 import com.example.nenaai.data.model.CreateIncomeRecordRequest
 import com.example.nenaai.data.model.IncomeRecordResponse
+import com.example.nenaai.data.model.UserAnalyticsResponse
 import com.example.nenaai.data.network.ApiService
 import javax.inject.Inject
 
@@ -70,6 +71,20 @@ class LoanRepository @Inject constructor(private val apiService: ApiService) {
     suspend fun getIncomeRecords(token: String): Result<List<IncomeRecordResponse>> {
         return try {
             val response = apiService.getIncomeRecords("Bearer $token")
+            if (response.isSuccessful) {
+                response.body()?.let { Result.success(it) }
+                    ?: Result.failure(Exception("Empty response body"))
+            } else {
+                Result.failure(Exception("API call failed: ${response.code()} - ${response.errorBody()?.string()}"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun getUserAnalytics(token: String): Result<UserAnalyticsResponse> {
+        return try {
+            val response = apiService.getUserAnalytics("Bearer $token")
             if (response.isSuccessful) {
                 response.body()?.let { Result.success(it) }
                     ?: Result.failure(Exception("Empty response body"))

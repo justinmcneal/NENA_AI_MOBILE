@@ -117,6 +117,16 @@ fun ProfileScreen(
         // Add Income Record (Temporary for testing)
         ActionItem(text = "Add Income Record") { navController.navigate(Screen.AddIncomeRecord.route) }
 
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // View Income Records
+        ActionItem(text = "View Income Records") { navController.navigate(Screen.IncomeRecordList.route) }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // View User Analytics
+        ActionItem(text = "View User Analytics") { navController.navigate(Screen.UserAnalytics.route) }
+
         Spacer(modifier = Modifier.height(24.dp))
 
         // ========================
