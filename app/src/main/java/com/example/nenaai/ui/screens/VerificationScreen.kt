@@ -32,6 +32,8 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import com.example.nenaai.data.local.TokenManager
+import com.example.nenaai.data.model.UserVerificationRequest
 import com.example.nenaai.navigation.Screen
 import com.example.nenaai.viewmodel.VerificationViewModel
 import java.util.*
@@ -44,6 +46,19 @@ fun VerificationScreen(
     var currentStep by remember { mutableIntStateOf(1) }
     val documentBitmaps by viewModel.documentBitmaps.collectAsStateWithLifecycle()
 
+    // 🟢 Form States
+    var dateOfBirth by remember { mutableStateOf("") }
+    var gender by remember { mutableStateOf("") }
+    var civilStatus by remember { mutableStateOf("") }
+    var educationLevel by remember { mutableStateOf("") }
+    var region by remember { mutableStateOf("") }
+    var province by remember { mutableStateOf("") }
+    var cityTown by remember { mutableStateOf("") }
+    var barangay by remember { mutableStateOf("") }
+    var businessName by remember { mutableStateOf("") }
+    var businessAddress by remember { mutableStateOf("") }
+    var businessIndustry by remember { mutableStateOf("") }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -51,7 +66,6 @@ fun VerificationScreen(
             .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Step Progress Indicator
         LinearProgressIndicator(
             progress = { currentStep / 3f },
             modifier = Modifier
@@ -64,7 +78,6 @@ fun VerificationScreen(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Title
         Text(
             text = "Verification",
             style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
@@ -77,7 +90,6 @@ fun VerificationScreen(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Content inside a Card
         Card(
             modifier = Modifier.fillMaxWidth(),
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
@@ -86,16 +98,42 @@ fun VerificationScreen(
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
                 when (currentStep) {
-                    1 -> Step1Content()
-                    2 -> Step2Content()
-                    3 -> Step3Content(bitmaps = documentBitmaps, onDocumentCaptured = viewModel::onDocumentCaptured)
+                    1 -> Step1Content(
+                        dateOfBirth = dateOfBirth,
+                        onDateOfBirthChange = { dateOfBirth = it },
+                        gender = gender,
+                        onGenderChange = { gender = it },
+                        civilStatus = civilStatus,
+                        onCivilStatusChange = { civilStatus = it },
+                        educationLevel = educationLevel,
+                        onEducationLevelChange = { educationLevel = it },
+                        region = region,
+                        onRegionChange = { region = it },
+                        province = province,
+                        onProvinceChange = { province = it },
+                        cityTown = cityTown,
+                        onCityTownChange = { cityTown = it },
+                        barangay = barangay,
+                        onBarangayChange = { barangay = it }
+                    )
+                    2 -> Step2Content(
+                        businessName = businessName,
+                        onBusinessNameChange = { businessName = it },
+                        businessAddress = businessAddress,
+                        onBusinessAddressChange = { businessAddress = it },
+                        businessIndustry = businessIndustry,
+                        onBusinessIndustryChange = { businessIndustry = it }
+                    )
+                    3 -> Step3Content(
+                        bitmaps = documentBitmaps,
+                        onDocumentCaptured = viewModel::onDocumentCaptured
+                    )
                 }
             }
         }
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Navigation buttons
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
@@ -103,9 +141,7 @@ fun VerificationScreen(
             if (currentStep > 1) {
                 OutlinedButton(
                     onClick = { currentStep-- },
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(50.dp)
+                    modifier = Modifier.weight(1f).height(50.dp)
                 ) {
                     Text("Previous", fontSize = 16.sp)
                 }
@@ -113,59 +149,61 @@ fun VerificationScreen(
             }
             Button(
                 onClick = {
-                    if (currentStep < 3) currentStep++ else {
+                    if (currentStep < 3) {
+                        currentStep++
+                    } else {
+                        // 🟢 Build request and call ViewModel
+                        val request = UserVerificationRequest(
+                            date_of_birth = dateOfBirth,
+                            gender = gender,
+                            civil_status = civilStatus,
+                            education_level = educationLevel,
+                            region = region,
+                            province = province,
+                            city_town = cityTown,
+                            barangay = barangay,
+                            business_name = businessName,
+                            business_address = businessAddress,
+                            business_industry = businessIndustry
+                        )
                         viewModel.submitVerification()
-                        navController.navigate(Screen.Main.route){
-                            popUpTo(Screen.Verification.route){
-                                inclusive = true
-                            }
+                        viewModel.submitVerificationDetails(request)
+
+                        navController.navigate(Screen.Main.route) {
+                            popUpTo(Screen.Verification.route) { inclusive = true }
                         }
                     }
                 },
-                modifier = Modifier
-                    .weight(1f)
-                    .height(50.dp)
-                  ,
+                modifier = Modifier.weight(1f).height(50.dp),
                 shape = MaterialTheme.shapes.medium
             ) {
-                Text(
-                    if (currentStep < 3) "Next" else "Submit",
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Medium
-                )
+                Text(if (currentStep < 3) "Next" else "Submit", fontSize = 16.sp, fontWeight = FontWeight.Medium)
             }
         }
     }
 }
 
 @Composable
-fun Step1Content() {
-    // Basic Information section
-    Text(
-        text = "BASIC INFORMATION",
-        fontSize = 18.sp,
-        fontWeight = FontWeight.Bold,
-        modifier = Modifier
-            .padding(bottom = 8.dp)
-    )
-
-    // Description text
-    Text(
-        text = "To apply for a loan on our platform, simply fill out your basic information, including your name, date of birth, and contact details. This information helps us verify your identity and streamline the application process. Rest assured, all your data is securely stored and protected.",
-        fontSize = 14.sp,
-        color = Color.Gray,
-        textAlign = TextAlign.Start,
-        modifier = Modifier
-            .padding(bottom = 16.dp)
-    )
-
-    // Date of Birth
+fun Step1Content(
+    dateOfBirth: String,
+    onDateOfBirthChange: (String) -> Unit,
+    gender: String,
+    onGenderChange: (String) -> Unit,
+    civilStatus: String,
+    onCivilStatusChange: (String) -> Unit,
+    educationLevel: String,
+    onEducationLevelChange: (String) -> Unit,
+    region: String,
+    onRegionChange: (String) -> Unit,
+    province: String,
+    onProvinceChange: (String) -> Unit,
+    cityTown: String,
+    onCityTownChange: (String) -> Unit,
+    barangay: String,
+    onBarangayChange: (String) -> Unit
+) {
     val context = LocalContext.current
-    var dateOfBirth by remember { mutableStateOf("") }
     val calendar = Calendar.getInstance()
-    val year = calendar.get(Calendar.YEAR)
-    val month = calendar.get(Calendar.MONTH)
-    val day = calendar.get(Calendar.DAY_OF_MONTH)
 
     OutlinedTextField(
         value = dateOfBirth,
@@ -176,8 +214,8 @@ fun Step1Content() {
         trailingIcon = {
             IconButton(onClick = {
                 DatePickerDialog(context, { _, y, m, d ->
-                    dateOfBirth = "$y-${m + 1}-$d"
-                }, year, month, day).show()
+                    onDateOfBirthChange("$y-${m + 1}-$d")
+                }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH)).show()
             }) {
                 Icon(Icons.Default.ArrowDropDown, contentDescription = "Select Date")
             }
@@ -185,98 +223,65 @@ fun Step1Content() {
     )
     Spacer(modifier = Modifier.height(16.dp))
 
-    // Gender
-    DropdownField(
-        label = "Gender",
-        options = listOf("Male", "Female")
-    )
+    DropdownField("Gender", listOf("Male", "Female"), gender, onGenderChange)
     Spacer(modifier = Modifier.height(16.dp))
 
-    // Civil Status
-    DropdownField(
-        label = "Civil Status",
-        options = listOf("Single", "Married", "Widowed", "Legally Separated")
-    )
+    DropdownField("Civil Status", listOf("Single", "Married", "Widowed", "Legally Separated"), civilStatus, onCivilStatusChange)
     Spacer(modifier = Modifier.height(16.dp))
 
-    // Education Level
     DropdownField(
-        label = "Education Level",
-        options = listOf(
-            "No Formal Education", "Elementary Graduate", "High School Graduate",
-            "Vocational", "College Graduate", "Post Graduate"
-        )
-    )
-    Spacer(modifier = Modifier.height(16.dp))
-
-    // Region
-    DropdownField(
-            label = "Region",
-    options = listOf(
-        "NCR", "CAR", "Region I – Ilocos", "Region II – Cagayan Valley",
-        "Region III – Central Luzon", "Region IV-A – CALABARZON", "MIMAROPA",
-        "Region V – Bicol", "Region VI – Western Visayas", "Region VII – Central Visayas"
-    )
-    )
-    Spacer(modifier = Modifier.height(16.dp))
-
-    // Province (placeholder)
-
-    DropdownField(
-        label = "Province",
-        options = listOf("Abra", "Albay", "Batangas", "Bulacan", "Cebu", "Davao del Sur")
+        "Education Level",
+        listOf("No Formal Education", "Elementary Graduate", "High School Graduate", "Vocational", "College Graduate", "Post Graduate"),
+        educationLevel,
+        onEducationLevelChange
     )
     Spacer(modifier = Modifier.height(16.dp))
 
     DropdownField(
-        label = "City or Town",
-        options = listOf("Quezon City", "Manila", "Cebu City", "Davao City", "Baguio")
+        "Region",
+        listOf("NCR", "CAR", "Region I – Ilocos", "Region II – Cagayan Valley", "Region III – Central Luzon"),
+        region,
+        onRegionChange
     )
     Spacer(modifier = Modifier.height(16.dp))
 
-    // Barangay (placeholder)
-    DropdownField(label = "Barangay", options = listOf("asd","asdas"))
+    DropdownField("Province", listOf("Abra", "Albay", "Batangas", "Bulacan", "Cebu", "Davao del Sur"), province, onProvinceChange)
+    Spacer(modifier = Modifier.height(16.dp))
+
+    DropdownField("City or Town", listOf("Quezon City", "Manila", "Cebu City", "Davao City", "Baguio"), cityTown, onCityTownChange)
+    Spacer(modifier = Modifier.height(16.dp))
+
+    DropdownField("Barangay", listOf("Barangay 1", "Barangay 2"), barangay, onBarangayChange)
 }
 
 @Composable
-fun Step2Content() {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(8.dp)
-    ) {
-        Text(
-            text = "Employment Information",
-            fontSize = 20.sp,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(bottom = 4.dp)
-        )
-
-        Text(
-            text = "Tell us about your employment details. This helps us assess your application.",
-            fontSize = 14.sp,
-            color = Color.Gray,
-            modifier = Modifier.padding(bottom = 16.dp)
-        )
-
-
-        Spacer(Modifier.height(16.dp))
+fun Step2Content(
+    businessName: String,
+    onBusinessNameChange: (String) -> Unit,
+    businessAddress: String,
+    onBusinessAddressChange: (String) -> Unit,
+    businessIndustry: String,
+    onBusinessIndustryChange: (String) -> Unit
+) {
+    Column {
+        Text("Employment Information", fontSize = 20.sp, fontWeight = FontWeight.Bold)
 
         OutlinedTextField(
-            value = "",
-            onValueChange = {},
+            value = businessName,
+            onValueChange = onBusinessNameChange,
             label = { Text("Employer / Business Name") },
             modifier = Modifier.fillMaxWidth()
         )
         OutlinedTextField(
-            value = "",
-            onValueChange = {},
+            value = businessAddress,
+            onValueChange = onBusinessAddressChange,
             label = { Text("Address") },
             modifier = Modifier.fillMaxWidth()
         )
-        DropdownField(label = "Industry", options = listOf("Agriculture", "Manufacturing", "Services", "Retail", "Technology", "Other"))
+        DropdownField("Industry", listOf("Agriculture", "Manufacturing", "Services", "Retail", "Technology", "Other"), businessIndustry, onBusinessIndustryChange)
     }
 }
+
 
 @Composable
 fun Step3Content(
@@ -319,33 +324,29 @@ fun Step3Content(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DropdownField(label: String, options: List<String>) {
+fun DropdownField(
+    label: String,
+    options: List<String>,
+    selectedValue: String,
+    onValueChange: (String) -> Unit
+) {
     var expanded by remember { mutableStateOf(false) }
-    var selectedOption by remember { mutableStateOf("") }
 
-    ExposedDropdownMenuBox(
-        expanded = expanded,
-        onExpandedChange = { expanded = !expanded }
-    ) {
+    ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = !expanded }) {
         OutlinedTextField(
-            value = selectedOption,
+            value = selectedValue,
             onValueChange = {},
             readOnly = true,
             label = { Text(label) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-            modifier = Modifier
-                .menuAnchor()
-                .fillMaxWidth()
+            modifier = Modifier.menuAnchor().fillMaxWidth()
         )
-        ExposedDropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false }
-        ) {
+        ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
             options.forEach { option ->
                 DropdownMenuItem(
                     text = { Text(option) },
                     onClick = {
-                        selectedOption = option
+                        onValueChange(option)
                         expanded = false
                     }
                 )
@@ -353,6 +354,7 @@ fun DropdownField(label: String, options: List<String>) {
         }
     }
 }
+
 
 @Composable
 fun UploadField(

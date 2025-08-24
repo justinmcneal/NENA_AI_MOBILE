@@ -49,6 +49,21 @@ data class User(
     val loan_status: String
 )
 
+data class UserVerificationRequest(
+    val date_of_birth: String,
+    val gender: String,
+    val civil_status: String,
+    val education_level: String,
+    val region: String,
+    val province: String,
+    val city_town: String,
+    val barangay: String,
+    val business_name: String,
+    val business_address: String,
+    val business_industry: String
+)
+
+
 data class BackendErrorResponse(
     val phone_number: List<String>? = null,
     val detail: String? = null,

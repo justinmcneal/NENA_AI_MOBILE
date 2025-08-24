@@ -2,12 +2,15 @@ package com.example.nenaai.data.repository
 
 import android.content.Context
 import android.graphics.Bitmap
+import com.example.nenaai.data.model.AuthResponse
+import com.example.nenaai.data.model.UserVerificationRequest
 import com.example.nenaai.data.network.ApiService
 import dagger.hilt.android.qualifiers.ApplicationContext
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
+import retrofit2.Response
 import java.io.File
 import java.io.FileOutputStream
 import javax.inject.Inject
@@ -46,4 +49,9 @@ class VerificationRepository @Inject constructor(
 
         return file
     }
+
+    suspend fun submitVerificationDetails(token: String, request: UserVerificationRequest): Response<AuthResponse> {
+        return apiService.submitVerificationDetails(token, request)
+    }
+
 }
