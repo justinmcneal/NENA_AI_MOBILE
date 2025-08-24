@@ -10,6 +10,10 @@ sealed class Screen(val route: String) {
 
     object ApplyLoan : Screen("apply_loan")
     object Verification : Screen("verification")
+    object AddIncomeRecord : Screen("add_income_record")
+    object IncomeRecordList : Screen("income_record_list")
+    object UserAnalytics : Screen("user_analytics")
+    object UserDocumentList : Screen("user_document_list")
 
 
     // Nested routes for Bottom Navigation

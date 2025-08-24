@@ -26,14 +26,17 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.nenaai.data.model.User
 import com.example.nenaai.ui.components.CommonSnackbar
 import com.example.nenaai.viewmodel.ProfileViewModel
+import androidx.navigation.NavController
+import com.example.nenaai.navigation.Screen
 
 @Composable
 fun ProfileScreen(
     onNavigateToSetPin: () -> Unit,
     onNavigateToVerification: () -> Unit,
-    onNavigateToFAQs: () -> Unit = {},      // New
-    onNavigateToSupport: () -> Unit = {},   // New
-    profileViewModel: ProfileViewModel = hiltViewModel()
+    onNavigateToFAQs: () -> Unit = {},
+    onNavigateToSupport: () -> Unit = {},
+    profileViewModel: ProfileViewModel = hiltViewModel(),
+    navController: NavController // Add NavController here
 ) {
     val userProfile by profileViewModel.userProfile.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -108,6 +111,26 @@ fun ProfileScreen(
 
         // Verification
         ActionItem(text = "Verification") { onNavigateToVerification() }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // Add Income Record (Temporary for testing)
+        ActionItem(text = "Add Income Record") { navController.navigate(Screen.AddIncomeRecord.route) }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // View Income Records
+        ActionItem(text = "View Income Records") { navController.navigate(Screen.IncomeRecordList.route) }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // View User Analytics
+        ActionItem(text = "View User Analytics") { navController.navigate(Screen.UserAnalytics.route) }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // View My Documents
+        ActionItem(text = "View My Documents") { navController.navigate(Screen.UserDocumentList.route) }
 
         Spacer(modifier = Modifier.height(24.dp))
 

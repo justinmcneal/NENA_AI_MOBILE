@@ -12,18 +12,19 @@ import com.example.nenaai.ui.screens.OtpVerificationScreen
 import com.example.nenaai.ui.screens.ProfileCompletionScreen
 import com.example.nenaai.ui.screens.SetPinScreen
 import com.example.nenaai.ui.screens.VerificationScreen
-import com.example.nenaai.ui.screens.PinVerificationScreen // Import the new screen
+import com.example.nenaai.ui.screens.PinVerificationScreen
 import com.example.nenaai.viewmodel.AuthViewModel
 import com.example.nenaai.viewmodel.OneTimeEvent
 import com.example.nenaai.viewmodel.ProfileViewModel
 import com.example.nenaai.viewmodel.ProfileOneTimeEvent
-import com.example.nenaai.data.local.TokenManager // Import TokenManager
+import com.example.nenaai.data.local.TokenManager
 import androidx.compose.runtime.LaunchedEffect
-import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.nenaai.ui.screens.AddIncomeRecordScreen
 import com.example.nenaai.ui.screens.ApplyLoanScreen
+import com.example.nenaai.ui.screens.IncomeRecordListScreen
+import com.example.nenaai.ui.screens.UserAnalyticsScreen
 import com.example.nenaai.viewmodel.ApplyLoanViewModel
 import com.example.nenaai.viewmodel.NavigationEvent
-import javax.inject.Inject // Import Inject
 
 @Composable
 fun NavGraph() {
@@ -31,11 +32,8 @@ fun NavGraph() {
     val authViewModel: AuthViewModel = hiltViewModel()
     val profileViewModel: ProfileViewModel = hiltViewModel()
     val tokenManager: TokenManager = hiltViewModel<AuthViewModel>().tokenManager // Inject TokenManager
-
-    // Determine start destination based on saved state
     val startDestination = getStartDestination(tokenManager)
 
-    // This LaunchedEffect handles navigation events from the AuthViewModel.
     LaunchedEffect(Unit) {
         authViewModel.navigationEvent.collect { event ->
             Log.d("NavGraph", "Received NavigationEvent: $event")
@@ -49,15 +47,13 @@ fun NavGraph() {
             }
         }
     }
-
-    // This LaunchedEffect handles the original flow after OTP verification.
-    LaunchedEffect(Unit) { // Observe AuthViewModel's oneTimeEvent for navigation
+    LaunchedEffect(Unit) {
         authViewModel.oneTimeEvent.collect { event ->
             Log.d("NavGraph", "Received Auth OneTimeEvent: $event")
             when (event) {
                 is OneTimeEvent.Success -> {
                     Log.d("NavGraph", "Auth OneTimeEvent.Success with message: ${event.authResponse.message}")
-                    when (event.authResponse.user_status) { // Keep existing logic for other statuses
+                    when (event.authResponse.user_status) {
                         "OTP_VERIFIED" -> {
                             Log.d("NavGraph", "Navigating to ProfileCompletionScreen")
                             navController.navigate(Screen.ProfileCompletion.route) {
@@ -65,12 +61,12 @@ fun NavGraph() {
                             }
                         }
                         "PROFILE_COMPLETE" -> {
-                            Log.d("NavGraph", "Navigating to SetPinScreen") // Changed log message
-                            navController.navigate(Screen.SetPin.route) { // Changed navigation route
+                            Log.d("NavGraph", "Navigating to SetPinScreen")
+                            navController.navigate(Screen.SetPin.route) {
                                 popUpTo(Screen.Login.route) { inclusive = true }
                             }
                         }
-                        "PIN_VERIFIED" -> { // Or check for access token
+                        "PIN_VERIFIED" -> {
                             Log.d("NavGraph", "Navigating to MainScreen after PIN login")
                             navController.navigate(Screen.Main.route) {
                                 popUpTo(Screen.Login.route) { inclusive = true }
@@ -83,13 +79,12 @@ fun NavGraph() {
                 }
                 is OneTimeEvent.Error -> {
                     Log.d("NavGraph", "Auth OneTimeEvent.Error: ${event.message}")
-                    // Error handled by individual screens via Snackbar
                 }
             }
         }
     }
 
-    LaunchedEffect(Unit) { // Observe ProfileViewModel's oneTimeEvent for navigation
+    LaunchedEffect(Unit) {
         profileViewModel.oneTimeEvent.collect { event ->
             Log.d("NavGraph", "Received Profile OneTimeEvent: $event")
             when (event) {
@@ -104,7 +99,6 @@ fun NavGraph() {
                 }
                 is ProfileOneTimeEvent.Error -> {
                     Log.d("NavGraph", "Profile OneTimeEvent.Error: ${event.message}")
-                    // Error handled by individual screens via Snackbar
                 }
             }
         }
@@ -112,7 +106,7 @@ fun NavGraph() {
 
     NavHost(
         navController = navController,
-        startDestination = startDestination // Use dynamic start destination
+        startDestination = startDestination
     ) {
         composable(Screen.Login.route) {
             LoginScreen(authViewModel = authViewModel)
@@ -126,7 +120,7 @@ fun NavGraph() {
         composable(Screen.SetPin.route) {
             SetPinScreen(profileViewModel = profileViewModel)
         }
-        composable(Screen.PinVerification.route) { // ADDED new composable
+        composable(Screen.PinVerification.route) {
             PinVerificationScreen(navController = navController, authViewModel = authViewModel)
         }
         composable(Screen.Main.route) {
@@ -137,7 +131,7 @@ fun NavGraph() {
         }
 
         composable(Screen.ApplyLoan.route) {
-            val viewModel: ApplyLoanViewModel = hiltViewModel() // or viewModel() if not using Hilt
+            val viewModel: ApplyLoanViewModel = hiltViewModel()
             ApplyLoanScreen(
                 viewModel = viewModel,
                 onBack = { navController.popBackStack() },
@@ -148,6 +142,18 @@ fun NavGraph() {
                 }
             )
         }
+        composable(Screen.AddIncomeRecord.route) {
+            AddIncomeRecordScreen(onRecordAdded = { navController.popBackStack() })
+        }
+        composable(Screen.IncomeRecordList.route) {
+            IncomeRecordListScreen(onBack = { navController.popBackStack() })
+        }
+        composable(Screen.UserAnalytics.route) {
+            UserAnalyticsScreen(onBack = { navController.popBackStack() })
+        }
+//        composable(Screen.UserAnalytics.route) {
+//            UserRepaymentScreen(onBack = { navController.popBackStack() })
+//        }
 
     }
 }
@@ -156,19 +162,19 @@ fun NavGraph() {
 private fun getStartDestination(tokenManager: TokenManager): String {
     return when {
         tokenManager.getToken() != null && tokenManager.getAuthFlowState(TokenManager.KEY_PIN_SET) -> {
-            Screen.PinVerification.route // Changed to PinVerificationScreen
+            Screen.PinVerification.route
         }
         tokenManager.getAuthFlowState(TokenManager.KEY_PROFILE_COMPLETE) -> {
-            Screen.SetPin.route // Profile is complete, but PIN is not set
+            Screen.SetPin.route
         }
         tokenManager.getAuthFlowState(TokenManager.KEY_OTP_VERIFIED) -> {
-            Screen.ProfileCompletion.route // OTP is verified, but profile is not complete
+            Screen.ProfileCompletion.route
         }
         tokenManager.getAuthFlowState(TokenManager.KEY_OTP_SENT) -> {
-            Screen.OtpVerification.route // OTP is sent, but not verified
+            Screen.OtpVerification.route
         }
         else -> {
-            Screen.Login.route // Default to login screen
+            Screen.Login.route
         }
     }
 }
