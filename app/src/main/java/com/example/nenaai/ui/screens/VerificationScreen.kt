@@ -38,152 +38,175 @@ import com.example.nenaai.navigation.Screen
 import com.example.nenaai.viewmodel.VerificationViewModel
 import java.util.*
 
-@Composable
-fun VerificationScreen(
-    navController: NavController,
-    viewModel: VerificationViewModel = hiltViewModel()
-) {
-    var currentStep by remember { mutableIntStateOf(1) }
-    val documentBitmaps by viewModel.documentBitmaps.collectAsStateWithLifecycle()
 
-    // 🟢 Form States
-    var dateOfBirth by remember { mutableStateOf("") }
-    var gender by remember { mutableStateOf("") }
-    var civilStatus by remember { mutableStateOf("") }
-    var educationLevel by remember { mutableStateOf("") }
-    var region by remember { mutableStateOf("") }
-    var province by remember { mutableStateOf("") }
-    var cityTown by remember { mutableStateOf("") }
-    var barangay by remember { mutableStateOf("") }
-    var businessName by remember { mutableStateOf("") }
-    var businessAddress by remember { mutableStateOf("") }
-    var businessIndustry by remember { mutableStateOf("") }
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-            .verticalScroll(rememberScrollState()),
-        horizontalAlignment = Alignment.CenterHorizontally
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Composable
+    fun VerificationScreen(
+        navController: NavController,
+        viewModel: VerificationViewModel = hiltViewModel()
     ) {
-        LinearProgressIndicator(
-            progress = { currentStep / 3f },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(8.dp)
-                .clip(CircleShape),
-            color = MaterialTheme.colorScheme.primary,
-            trackColor = MaterialTheme.colorScheme.surfaceVariant,
-        )
+        var currentStep by remember { mutableIntStateOf(1) }
+        val documentBitmaps by viewModel.documentBitmaps.collectAsStateWithLifecycle()
 
-        Spacer(modifier = Modifier.height(24.dp))
+        // 🟢 Form States
+        var dateOfBirth by remember { mutableStateOf("") }
+        var gender by remember { mutableStateOf("") }
+        var civilStatus by remember { mutableStateOf("") }
+        var educationLevel by remember { mutableStateOf("") }
+        var region by remember { mutableStateOf("") }
+        var province by remember { mutableStateOf("") }
+        var cityTown by remember { mutableStateOf("") }
+        var barangay by remember { mutableStateOf("") }
+        var businessName by remember { mutableStateOf("") }
+        var businessAddress by remember { mutableStateOf("") }
+        var businessIndustry by remember { mutableStateOf("") }
 
-        Text(
-            text = "Verification",
-            style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
-        Text(
-            text = "Step $currentStep of 3",
-            style = MaterialTheme.typography.bodyMedium.copy(color = Color.Gray)
-        )
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-            elevation = CardDefaults.cardElevation(4.dp),
-            shape = MaterialTheme.shapes.medium
-        ) {
-            Column(modifier = Modifier.padding(16.dp)) {
-                when (currentStep) {
-                    1 -> Step1Content(
-                        dateOfBirth = dateOfBirth,
-                        onDateOfBirthChange = { dateOfBirth = it },
-                        gender = gender,
-                        onGenderChange = { gender = it },
-                        civilStatus = civilStatus,
-                        onCivilStatusChange = { civilStatus = it },
-                        educationLevel = educationLevel,
-                        onEducationLevelChange = { educationLevel = it },
-                        region = region,
-                        onRegionChange = { region = it },
-                        province = province,
-                        onProvinceChange = { province = it },
-                        cityTown = cityTown,
-                        onCityTownChange = { cityTown = it },
-                        barangay = barangay,
-                        onBarangayChange = { barangay = it }
-                    )
-                    2 -> Step2Content(
-                        businessName = businessName,
-                        onBusinessNameChange = { businessName = it },
-                        businessAddress = businessAddress,
-                        onBusinessAddressChange = { businessAddress = it },
-                        businessIndustry = businessIndustry,
-                        onBusinessIndustryChange = { businessIndustry = it }
-                    )
-                    3 -> Step3Content(
-                        bitmaps = documentBitmaps,
-                        onDocumentCaptured = viewModel::onDocumentCaptured
-                    )
-                }
-            }
-        }
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            if (currentStep > 1) {
-                OutlinedButton(
-                    onClick = { currentStep-- },
-                    modifier = Modifier.weight(1f).height(50.dp)
-                ) {
-                    Text("Previous", fontSize = 16.sp)
-                }
-                Spacer(modifier = Modifier.width(16.dp))
-            }
-            Button(
-                onClick = {
-                    if (currentStep < 3) {
-                        currentStep++
-                    } else {
-                        // 🟢 Build request and call ViewModel
-                        val request = UserVerificationRequest(
-                            date_of_birth = dateOfBirth,
-                            gender = gender,
-                            civil_status = civilStatus,
-                            education_level = educationLevel,
-                            region = region,
-                            province = province,
-                            city_town = cityTown,
-                            barangay = barangay,
-                            business_name = businessName,
-                            business_address = businessAddress,
-                            business_industry = businessIndustry
-                        )
-                        viewModel.submitVerification()
-                        viewModel.submitVerificationDetails(request)
-
-                        navController.navigate(Screen.Main.route) {
-                            popUpTo(Screen.Verification.route) { inclusive = true }
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    title = { Text("Verification") },
+                    navigationIcon = {
+                        IconButton(onClick = { navController.popBackStack() }) {
+                            Icon(
+                                imageVector = Icons.Default.ArrowDropDown, // change to ArrowBack if needed
+                                contentDescription = "Back"
+                            )
                         }
                     }
-                },
-                modifier = Modifier.weight(1f).height(50.dp),
-                shape = MaterialTheme.shapes.medium
+                )
+            }
+        ) { paddingValues ->
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .padding(16.dp)
+                    .verticalScroll(rememberScrollState())
+                    .statusBarsPadding(),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(if (currentStep < 3) "Next" else "Submit", fontSize = 16.sp, fontWeight = FontWeight.Medium)
+                LinearProgressIndicator(
+                    progress = { currentStep / 3f },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(8.dp)
+                        .clip(CircleShape),
+                    color = MaterialTheme.colorScheme.primary,
+                    trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                )
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                Text(
+                    text = "Step $currentStep of 3",
+                    style = MaterialTheme.typography.bodyMedium.copy(color = Color.Gray)
+                )
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                    elevation = CardDefaults.cardElevation(4.dp),
+                    shape = MaterialTheme.shapes.medium
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        when (currentStep) {
+                            1 -> Step1Content(
+                                dateOfBirth = dateOfBirth,
+                                onDateOfBirthChange = { dateOfBirth = it },
+                                gender = gender,
+                                onGenderChange = { gender = it },
+                                civilStatus = civilStatus,
+                                onCivilStatusChange = { civilStatus = it },
+                                educationLevel = educationLevel,
+                                onEducationLevelChange = { educationLevel = it },
+                                region = region,
+                                onRegionChange = { region = it },
+                                province = province,
+                                onProvinceChange = { province = it },
+                                cityTown = cityTown,
+                                onCityTownChange = { cityTown = it },
+                                barangay = barangay,
+                                onBarangayChange = { barangay = it }
+                            )
+                            2 -> Step2Content(
+                                businessName = businessName,
+                                onBusinessNameChange = { businessName = it },
+                                businessAddress = businessAddress,
+                                onBusinessAddressChange = { businessAddress = it },
+                                businessIndustry = businessIndustry,
+                                onBusinessIndustryChange = { businessIndustry = it }
+                            )
+                            3 -> Step3Content(
+                                bitmaps = documentBitmaps,
+                                onDocumentCaptured = viewModel::onDocumentCaptured
+                            )
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    if (currentStep > 1) {
+                        OutlinedButton(
+                            onClick = { currentStep-- },
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(50.dp)
+                        ) {
+                            Text("Previous", fontSize = 16.sp)
+                        }
+                        Spacer(modifier = Modifier.width(16.dp))
+                    }
+                    Button(
+                        onClick = {
+                            if (currentStep < 3) {
+                                currentStep++
+                            } else {
+                                // 🟢 Submit
+                                val request = UserVerificationRequest(
+                                    date_of_birth = dateOfBirth,
+                                    gender = gender,
+                                    civil_status = civilStatus,
+                                    education_level = educationLevel,
+                                    region = region,
+                                    province = province,
+                                    city_town = cityTown,
+                                    barangay = barangay,
+                                    business_name = businessName,
+                                    business_address = businessAddress,
+                                    business_industry = businessIndustry
+                                )
+                                viewModel.submitVerification()
+                                viewModel.submitVerificationDetails(request)
+
+                                navController.navigate(Screen.Main.route) {
+                                    popUpTo(Screen.Verification.route) { inclusive = true }
+                                }
+                            }
+                        },
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(50.dp),
+                        shape = MaterialTheme.shapes.medium
+                    ) {
+                        Text(
+                            if (currentStep < 3) "Next" else "Submit",
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
+                }
             }
         }
     }
-}
 
-@Composable
+    @Composable
 fun Step1Content(
     dateOfBirth: String,
     onDateOfBirthChange: (String) -> Unit,

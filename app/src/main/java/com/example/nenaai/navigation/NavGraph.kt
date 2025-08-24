@@ -118,7 +118,7 @@ fun NavGraph() {
             ProfileCompletionScreen(authViewModel = authViewModel)
         }
         composable(Screen.SetPin.route) {
-            SetPinScreen(profileViewModel = profileViewModel)
+            SetPinScreen(profileViewModel = profileViewModel,authViewModel,navController)
         }
         composable(Screen.PinVerification.route) {
             PinVerificationScreen(navController = navController, authViewModel = authViewModel)
