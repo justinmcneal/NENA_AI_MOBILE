@@ -41,7 +41,7 @@ interface ApiService {
         @Header("Authorization") token: String
     ): Response<LoanDetailsResponse>
 
-    @POST("http://10.0.2.2:8000/api/loans/apply-loan/")
+    @POST("loans/apply-loan/")
     suspend fun applyLoan(
         @Body request: ApplyLoanRequest
     ): Response<LoanResponse>
@@ -56,21 +56,21 @@ interface ApiService {
     ): Response<AuthResponse>
 
     @Multipart
-    @POST("http://10.0.2.2:8000/api/documents/upload/")
+    @POST("documents/upload/")
     suspend fun uploadDocument(
         @Part("document_type") documentType: RequestBody,
         @Part file: MultipartBody.Part
     ): Response<Unit>
 
-    @POST("http://10.0.2.2:8000/api/analytics/income-records/")
+    @POST("analytics/income-records/")
     suspend fun createIncomeRecord(@Body request: CreateIncomeRecordRequest): Response<IncomeRecordResponse>
 
-    @GET("http://10.0.2.2:8000/api/analytics/income-records/")
+    @GET("analytics/income-records/")
     suspend fun getIncomeRecords(@Header("Authorization") token: String): Response<List<IncomeRecordResponse>>
 
-    @GET("http://10.0.2.2:8000/api/analytics/user/")
+    @GET("analytics/user/")
     suspend fun getUserAnalytics(@Header("Authorization") token: String): Response<UserAnalyticsResponse>
 
-    @GET("http://10.0.2.2:8000/api/documents/list/")
+    @GET("documents/list/")
     suspend fun getUserDocuments(@Header("Authorization") token: String): Response<List<UserDocumentResponse>>
 }

@@ -151,6 +151,9 @@ fun NavGraph() {
         composable(Screen.UserAnalytics.route) {
             UserAnalyticsScreen(onBack = { navController.popBackStack() })
         }
+        composable(Screen.UserDocumentList.route) {
+            com.example.nenaai.ui.screens.UserDocumentListScreen()
+        }
 //        composable(Screen.UserAnalytics.route) {
 //            UserRepaymentScreen(onBack = { navController.popBackStack() })
 //        }
