@@ -18,7 +18,7 @@ data class IncomeRecordResponse(
 data class UserAnalyticsResponse(
     val total_loan_amount: Double,
     val total_amount_repaid: Double,
-    val val_average_monthly_income: Double,
+    val average_monthly_income: Double,
     val business_consistency_score: Double,
     val last_updated: String
 )
