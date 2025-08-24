@@ -8,35 +8,35 @@ import retrofit2.Response
 import retrofit2.http.*
 
 interface ApiService {
-    @POST("register/")
+    @POST("users/register/")
     suspend fun registerUser(@Body request: UserRegistrationRequest): Response<AuthResponse>
 
-    @POST("verify-otp/")
+    @POST("users/verify-otp/")
     suspend fun verifyOTP(@Body request: OTPVerificationRequest): Response<AuthResponse>
 
-    @POST("resend-otp/")
+    @POST("users/resend-otp/")
     suspend fun resendOTP(@Body request: ResendOTPRequest): Response<AuthResponse>
 
-    @POST("complete-profile/")
+    @POST("users/complete-profile/")
     suspend fun completeProfile(@Body request: ProfileCompletionRequest): Response<AuthResponse>
 
-    @POST("set-pin/")
+    @POST("users/set-pin/")
     suspend fun setPIN(@Body request: SetPINRequest): Response<AuthResponse>
 
-    @POST("login-with-pin/")
+    @POST("users/login-with-pin/")
     suspend fun loginWithPIN(@Body request: LoginWithPINRequest): Response<AuthResponse>
 
-    @GET("profile/")
+    @GET("users/profile/")
     suspend fun getUserProfile(
         @Header("Authorization") authorization: String
     ): Response<User>
 
-    @GET("get-loan-status/")
+    @GET("loans/get-loan-status/")
     suspend fun checkLoanStatus(
         @Header("Authorization") token: String
     ): Response<LoanStatusResponse>
 
-    @GET("fetch-loan-details/")
+    @GET("users/fetch-loan-details/")
     suspend fun fetchLoanDetails(
         @Header("Authorization") token: String
     ): Response<LoanDetailsResponse>
@@ -49,7 +49,7 @@ interface ApiService {
     @POST("chat/")
     suspend fun postChatMessage(@Body request: ChatRequest): Response<ChatResponse>
 
-    @POST("verify-details/")
+    @POST("users/verify-details/")
     suspend fun submitVerificationDetails(
         @Header("Authorization") token: String,
         @Body request: UserVerificationRequest
