@@ -41,7 +41,7 @@ interface ApiService {
         @Header("Authorization") token: String
     ): Response<LoanDetailsResponse>
 
-    @POST("http://10.0.2.2:8000/api/loans/apply-loan/")
+    @POST("apply-loan/")
     suspend fun applyLoan(
         @Body request: ApplyLoanRequest
     ): Response<LoanResponse>
@@ -50,18 +50,18 @@ interface ApiService {
     suspend fun postChatMessage(@Body request: ChatRequest): Response<ChatResponse>
 
     @Multipart
-    @POST("http://10.0.2.2:8000/api/documents/upload/")
+    @POST("upload/")
     suspend fun uploadDocument(
         @Part("document_type") documentType: RequestBody,
         @Part file: MultipartBody.Part
     ): Response<Unit>
 
-    @POST("http://10.0.2.2:8000/api/analytics/income-records/")
+    @POST("income-records/")
     suspend fun createIncomeRecord(@Body request: CreateIncomeRecordRequest): Response<IncomeRecordResponse>
 
-    @GET("http://10.0.2.2:8000/api/analytics/income-records/")
+    @GET("income-records/")
     suspend fun getIncomeRecords(@Header("Authorization") token: String): Response<List<IncomeRecordResponse>>
 
-    @GET("http://10.0.2.2:8000/api/analytics/user/")
+    @GET("http://10.0.2.2:8000/api/analytics/user/") //Keep this for now.
     suspend fun getUserAnalytics(@Header("Authorization") token: String): Response<UserAnalyticsResponse>
 }
