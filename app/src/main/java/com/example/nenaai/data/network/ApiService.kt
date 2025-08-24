@@ -65,8 +65,6 @@ interface ApiService {
     @GET("http://10.0.2.2:8000/api/analytics/user/")
     suspend fun getUserAnalytics(@Header("Authorization") token: String): Response<UserAnalyticsResponse>
 
-    @POST("http://10.0.2.2:8000/api/loans/repay-loan/")
-    suspend fun repayLoan(@Body request: UserRepaymentRequest): Response<Unit>
-
     @GET("http://10.0.2.2:8000/api/documents/list/")
     suspend fun getUserDocuments(@Header("Authorization") token: String): Response<List<UserDocumentResponse>>
+}
