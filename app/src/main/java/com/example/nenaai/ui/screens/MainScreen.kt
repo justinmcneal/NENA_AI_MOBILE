@@ -1,5 +1,6 @@
 package com.example.nenaai.ui.screens
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -7,6 +8,8 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Face
@@ -32,6 +35,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -46,6 +51,7 @@ import com.example.nenaai.viewmodel.ChatViewModel
 import com.example.nenaai.viewmodel.LoanStatusViewModel
 import kotlinx.coroutines.launch
 
+@SuppressLint("SuspiciousIndentation")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(navController: NavController, token: String) {
@@ -68,37 +74,18 @@ fun MainScreen(navController: NavController, token: String) {
         NavItem("Profile", Icons.Default.Person, Screen.BottomNav.Profile.route)
     )
 
-    ModalNavigationDrawer(
-        drawerState = drawerState,
-        drawerContent = {
-            Column(
-                modifier = Modifier
-                    .fillMaxHeight()
-                    .padding(16.dp)
-            ) {
-                Text("Drawer Menu", style = MaterialTheme.typography.headlineMedium)
-                Spacer(modifier = Modifier.height(16.dp))
-                Text("Menu Item 1")
-                Spacer(modifier = Modifier.height(8.dp))
-                Text("Menu Item 2")
-                Spacer(modifier = Modifier.height(8.dp))
-                Text("Menu Item 3")
-            }
-        }
-    ) {
+//
         Scaffold(
+            modifier = Modifier.statusBarsPadding(),
             topBar = {
                 TopAppBar(
-                    title = { Text("Nena Ai") },
-                    navigationIcon = {
-                        IconButton(onClick = { scope.launch { drawerState.open() } }) {
-                            Icon(Icons.Default.Menu, contentDescription = "Menu")
-                        }
-                    }
+                    title = { Text("Nena Ai", color = MaterialTheme.colorScheme.primary)},
                 )
             },
             bottomBar = {
-                NavigationBar {
+                NavigationBar(
+                    containerColor = MaterialTheme.colorScheme.surface)
+                    {
                     navItems.forEach { item ->
                         NavigationBarItem(
                             icon = { Icon(item.icon, contentDescription = item.label) },
@@ -112,17 +99,37 @@ fun MainScreen(navController: NavController, token: String) {
                                     launchSingleTop = true
                                     restoreState = true
                                 }
-                            }
+                            },
+                            colors = androidx.compose.material3.NavigationBarItemDefaults.colors(
+                                selectedIconColor = Color.White,
+                                selectedTextColor = MaterialTheme.colorScheme.primary, // 🔵 Blue for selected text
+                                indicatorColor = MaterialTheme.colorScheme.primary,    // 🔵 Blue indicator
+                            )
                         )
                     }
                 }
             },
             floatingActionButton = {
                 if (currentRoute != Screen.BottomNav.Chat.route) {
-                    FloatingActionButton(onClick = { /* TODO */ }) {
-                        Icon(Icons.Default.Add, contentDescription = "Add")
+                        FloatingActionButton(
+                            onClick = {
+                                nestedNavController.navigate(Screen.BottomNav.Chat.route) {
+                                    popUpTo(nestedNavController.graph.startDestinationId) {
+                                        saveState = true
+                                    }
+                                    launchSingleTop = true
+                                    restoreState = true
+                                }
+                            },
+                            modifier = Modifier.clip(CircleShape),
+                            containerColor = MaterialTheme.colorScheme.primary,
+                            contentColor = Color.White
+
+                        ) {
+                            Icon(Icons.Default.Face, contentDescription = "Go to Chat")
+                        }
                     }
-                }
+
             }
         ) { paddingValues ->
             Box(
@@ -161,5 +168,5 @@ fun MainScreen(navController: NavController, token: String) {
                 }
             }
         }
-    }
+
 }

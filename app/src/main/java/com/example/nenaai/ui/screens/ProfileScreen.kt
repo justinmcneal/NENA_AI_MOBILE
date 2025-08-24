@@ -3,9 +3,12 @@ package com.example.nenaai.ui.screens
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
@@ -14,6 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -28,6 +32,7 @@ import com.example.nenaai.ui.components.CommonSnackbar
 import com.example.nenaai.viewmodel.ProfileViewModel
 import androidx.navigation.NavController
 import com.example.nenaai.navigation.Screen
+import kotlinx.coroutines.launch
 
 @Composable
 fun ProfileScreen(
@@ -40,6 +45,7 @@ fun ProfileScreen(
 ) {
     val userProfile by profileViewModel.userProfile.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
         profileViewModel.fetchUserProfile()
@@ -67,7 +73,8 @@ fun ProfileScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 16.dp),
+            .padding(horizontal = 16.dp)
+            .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.Start
     ) {
         Spacer(modifier = Modifier.height(24.dp))
@@ -152,6 +159,30 @@ fun ProfileScreen(
 
         // Contact Support
         ActionItem(text = "Contact Support") { onNavigateToSupport() }
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Button(
+            onClick = {
+                // Navigate to login
+                navController.navigate(Screen.Login.route) {
+                    popUpTo(0) { inclusive = true } // clears backstack
+                }
+
+                // Show snackbar
+                scope.launch {
+                    snackbarHostState.showSnackbar(
+                        message = "Logged Out Successfully",
+                        withDismissAction = true
+                    )
+                }
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(16.dp)),
+            shape = RoundedCornerShape(16.dp)
+        ) {
+            Text(text = "Logout", color = Color.White)
+        }
     }
 
     CommonSnackbar(snackbarHostState = snackbarHostState)
