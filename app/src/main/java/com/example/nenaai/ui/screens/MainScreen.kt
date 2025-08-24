@@ -28,6 +28,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -44,6 +45,7 @@ import com.example.nenaai.data.model.NavItem
 import com.example.nenaai.navigation.Screen
 import com.example.nenaai.viewmodel.ChatViewModel
 import com.example.nenaai.viewmodel.LoanStatusViewModel
+import com.example.nenaai.viewmodel.ProfileViewModel
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -56,10 +58,14 @@ fun MainScreen(navController: NavController, token: String) {
     val currentRoute = navBackStackEntry?.destination?.route
     val loanViewModel: LoanStatusViewModel = hiltViewModel()
     val loanState by loanViewModel.loanDetails.collectAsStateWithLifecycle()
+    val profileViewModel: ProfileViewModel = hiltViewModel()
+    val profileState by profileViewModel.userProfile.collectAsStateWithLifecycle()
+
 
     // Initial fetch
     LaunchedEffect(Unit) {
         loanViewModel.fetchLoanData(token)
+        profileViewModel.fetchUserProfile()
     }
 
     val navItems = listOf(
@@ -137,11 +143,16 @@ fun MainScreen(navController: NavController, token: String) {
                     modifier = Modifier.fillMaxSize()
                 ) {
                     composable(navItems[0].route) {
-                        HomeScreen(
-                            onApplyLoanClick = { navController.navigate(Screen.ApplyLoan.route) },
-                            loanState = loanState,
-                            retryFetch = { loanViewModel.fetchLoanData(token) }
-                        )
+                        profileState?.let { it1 ->
+                            HomeScreen(
+                                onApplyLoanClick = { navController.navigate(Screen.ApplyLoan.route) },
+                                loanState = loanState,
+                                retryFetchLoan = { loanViewModel.fetchLoanData(token) },
+                                verificationStatus = it1.verification_status,
+                                onNavigateToVerification = {navController.navigate(Screen.Verification.route)},
+                                retryFetchVerif = {profileViewModel.fetchUserProfile()}
+                            )
+                        }
                     }
                     composable(Screen.BottomNav.Chat.route) {
                         val chatViewModel: ChatViewModel = hiltViewModel()

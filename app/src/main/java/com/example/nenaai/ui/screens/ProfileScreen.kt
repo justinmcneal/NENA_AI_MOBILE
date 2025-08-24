@@ -110,9 +110,9 @@ fun ProfileScreen(
         Spacer(modifier = Modifier.height(8.dp))
 
         // Verification
-        ActionItem(text = "Verification") { onNavigateToVerification() }
+        //ActionItem(text = "Verification") { onNavigateToVerification() }
 
-        Spacer(modifier = Modifier.height(8.dp))
+        //Spacer(modifier = Modifier.height(8.dp))
 
         // Add Income Record (Temporary for testing)
         ActionItem(text = "Add Income Record") { navController.navigate(Screen.AddIncomeRecord.route) }

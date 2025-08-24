@@ -62,7 +62,11 @@ class ProfileViewModel @Inject constructor(
             } catch (e: BackendException) {
                 _oneTimeEvent.emit(ProfileOneTimeEvent.Error(e.message ?: "Backend error occurred"))
             } catch (e: Exception) {
-                _oneTimeEvent.emit(ProfileOneTimeEvent.Error(e.message ?: "An unexpected error occurred"))
+                _oneTimeEvent.emit(
+                    ProfileOneTimeEvent.Error(
+                        e.message ?: "An unexpected error occurred"
+                    )
+                )
             } finally {
                 _profileState.value = ProfileState.Idle
             }
