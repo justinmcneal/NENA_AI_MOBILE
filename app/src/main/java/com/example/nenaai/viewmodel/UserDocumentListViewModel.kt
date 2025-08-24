@@ -39,7 +39,7 @@ class UserDocumentListViewModel @Inject constructor(
             if (token.isNullOrEmpty()) {
                 _error.value = "Authentication token missing."
                 _loading.value = false
-                return
+                return@launch
             }
 
             val result = verificationRepository.getUserDocuments(token)

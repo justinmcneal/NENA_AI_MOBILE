@@ -13,7 +13,11 @@ data class LoanResponse(
     val amount_payable: String,
     val monthly_repayment: String,
     val months_left: Int,
-    val is_verified_by_bank: Boolean,
+    val loan_term: String,
+    val monthly_income: String,
+    val next_repayment_due_date: String?,
+    val repayment_status: String,
+    val status: String,
     val created_at: String
 )
 

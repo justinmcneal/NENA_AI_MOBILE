@@ -31,16 +31,20 @@ class UserAnalyticsViewModel @Inject constructor(
 
             if (token.isNullOrEmpty()) {
                 _userAnalytics.value = UserAnalyticsState.Error("Authentication token missing.")
-                return
+                return@launch
             }
 
             val result = loanRepository.getUserAnalytics(token)
             if (result.isSuccess) {
-                result.getOrNull()?.let {
-                    _userAnalytics.value = UserAnalyticsState.Success(it)
-                } ?: _userAnalytics.value = UserAnalyticsState.Error("Empty response from server.")
+                val data = result.getOrNull()
+                if (data != null) {
+                    _userAnalytics.value = UserAnalyticsState.Success(data)
+                } else {
+                    _userAnalytics.value = UserAnalyticsState.Error("Empty response from server.")
+                }
             } else {
-                _userAnalytics.value = UserAnalyticsState.Error(result.exceptionOrNull()?.message ?: "Unknown error occurred.")
+                val errorMessage = result.exceptionOrNull()?.message ?: "Unknown error occurred."
+                _userAnalytics.value = UserAnalyticsState.Error(errorMessage)
             }
         }
     }

@@ -40,7 +40,7 @@ class VerificationRepository @Inject constructor(
 
     suspend fun getUserDocuments(token: String): Result<List<UserDocumentResponse>> {
         return try {
-            val response = apiService.getUserDocuments("Bearer $token")
+            val response = apiService.getUserDocuments(token)
             if (response.isSuccessful) {
                 response.body()?.let { Result.success(it) }
                     ?: Result.failure(Exception("Empty response body"))

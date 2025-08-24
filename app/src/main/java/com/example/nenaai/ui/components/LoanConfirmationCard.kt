@@ -59,7 +59,7 @@ fun LoanConfirmationCard(
                 InfoRow("Amount Payable", "₱${loan.amount_payable}")
                 InfoRow("Monthly Repayment", "₱${loan.monthly_repayment}")
                 InfoRow("Loan Term", "${loan.months_left} months")
-                InfoRow("Status", if (loan.is_verified_by_bank) "Verified" else "Pending Verification")
+                InfoRow("Status",  loan.status)
 
                 Spacer(modifier = Modifier.height(16.dp))
 

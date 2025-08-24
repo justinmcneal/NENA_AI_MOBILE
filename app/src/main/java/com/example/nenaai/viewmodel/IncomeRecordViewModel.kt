@@ -28,7 +28,7 @@ class IncomeRecordViewModel @Inject constructor(
 
             if (token.isNullOrEmpty()) {
                 _addIncomeRecordEvent.emit(AddIncomeRecordEvent.Error("Authentication token missing."))
-                return
+                return@launch
             }
 
             val result = loanRepository.createIncomeRecord(request)
