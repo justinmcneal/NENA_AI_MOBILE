@@ -55,4 +55,13 @@ interface ApiService {
         @Part("document_type") documentType: RequestBody,
         @Part file: MultipartBody.Part
     ): Response<Unit>
+
+    @POST("http://10.0.2.2:8000/api/analytics/income-records/")
+    suspend fun createIncomeRecord(@Body request: CreateIncomeRecordRequest): Response<IncomeRecordResponse>
+
+    @GET("http://10.0.2.2:8000/api/analytics/income-records/")
+    suspend fun getIncomeRecords(@Header("Authorization") token: String): Response<List<IncomeRecordResponse>>
+
+    @GET("http://10.0.2.2:8000/api/analytics/user/")
+    suspend fun getUserAnalytics(@Header("Authorization") token: String): Response<UserAnalyticsResponse>
 }

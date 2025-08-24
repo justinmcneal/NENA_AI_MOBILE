@@ -20,7 +20,9 @@ import com.example.nenaai.viewmodel.ProfileOneTimeEvent
 import com.example.nenaai.data.local.TokenManager // Import TokenManager
 import androidx.compose.runtime.LaunchedEffect
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.nenaai.ui.screens.AddIncomeRecordScreen
 import com.example.nenaai.ui.screens.ApplyLoanScreen
+import com.example.nenaai.ui.screens.IncomeRecordListScreen
 import com.example.nenaai.viewmodel.ApplyLoanViewModel
 import com.example.nenaai.viewmodel.NavigationEvent
 import javax.inject.Inject // Import Inject
@@ -147,6 +149,12 @@ fun NavGraph() {
                     }
                 }
             )
+        }
+        composable(Screen.AddIncomeRecord.route) {
+            AddIncomeRecordScreen(onRecordAdded = { navController.popBackStack() })
+        }
+        composable(Screen.IncomeRecordList.route) {
+            IncomeRecordListScreen(onBack = { navController.popBackStack() })
         }
 
     }

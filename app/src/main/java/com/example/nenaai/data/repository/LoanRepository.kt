@@ -4,6 +4,8 @@ import com.example.nenaai.data.model.ApplyLoanRequest
 import com.example.nenaai.data.model.LoanDetailsResponse
 import com.example.nenaai.data.model.LoanResponse
 import com.example.nenaai.data.model.LoanStatusResponse
+import com.example.nenaai.data.model.CreateIncomeRecordRequest
+import com.example.nenaai.data.model.IncomeRecordResponse
 import com.example.nenaai.data.network.ApiService
 import javax.inject.Inject
 
@@ -45,6 +47,34 @@ class LoanRepository @Inject constructor(private val apiService: ApiService) {
                     ?: Result.failure(Exception("Empty response body"))
             } else {
                 Result.failure(Exception("API call failed: ${response.code()}"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun createIncomeRecord(request: CreateIncomeRecordRequest): Result<IncomeRecordResponse> {
+        return try {
+            val response = apiService.createIncomeRecord(request)
+            if (response.isSuccessful) {
+                response.body()?.let { Result.success(it) }
+                    ?: Result.failure(Exception("Empty response body"))
+            } else {
+                Result.failure(Exception("API call failed: ${response.code()} - ${response.errorBody()?.string()}"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun getIncomeRecords(token: String): Result<List<IncomeRecordResponse>> {
+        return try {
+            val response = apiService.getIncomeRecords("Bearer $token")
+            if (response.isSuccessful) {
+                response.body()?.let { Result.success(it) }
+                    ?: Result.failure(Exception("Empty response body"))
+            } else {
+                Result.failure(Exception("API call failed: ${response.code()} - ${response.errorBody()?.string()}"))
             }
         } catch (e: Exception) {
             Result.failure(e)
