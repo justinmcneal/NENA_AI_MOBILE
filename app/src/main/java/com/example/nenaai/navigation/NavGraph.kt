@@ -22,6 +22,7 @@ import androidx.compose.runtime.LaunchedEffect
 import com.example.nenaai.ui.screens.AddIncomeRecordScreen
 import com.example.nenaai.ui.screens.ApplyLoanScreen
 import com.example.nenaai.ui.screens.IncomeRecordListScreen
+import com.example.nenaai.ui.screens.UserAnalyticsScreen
 import com.example.nenaai.viewmodel.ApplyLoanViewModel
 import com.example.nenaai.viewmodel.NavigationEvent
 
@@ -150,9 +151,9 @@ fun NavGraph() {
         composable(Screen.UserAnalytics.route) {
             UserAnalyticsScreen(onBack = { navController.popBackStack() })
         }
-        composable(Screen.UserAnalytics.route) {
-            UserRepaymentScreen(onBack = { navController.popBackStack() })
-        }
+//        composable(Screen.UserAnalytics.route) {
+//            UserRepaymentScreen(onBack = { navController.popBackStack() })
+//        }
 
     }
 }
