@@ -502,6 +502,12 @@ fun HomeScreen(
                                         )
                                     } else {
                                         // Show Apply for a Loan button
+                                        val loanMessage = when (status) {
+                                            "REJECTED" -> "You can now apply for a loan"
+                                            "COMPLETED" -> "You can now apply for a new loan"
+                                            else -> "You can now apply for a loan"
+                                        }
+
                                         Column(
                                             modifier = Modifier
                                                 .fillMaxWidth()
@@ -510,7 +516,7 @@ fun HomeScreen(
                                             verticalArrangement = Arrangement.spacedBy(12.dp)
                                         ) {
                                             Text(
-                                                text = "Loan Status: ${status ?: "NONE"}",
+                                                text = loanMessage,
                                                 style = MaterialTheme.typography.bodyLarge,
                                                 color = MaterialTheme.colorScheme.onSurface
                                             )
