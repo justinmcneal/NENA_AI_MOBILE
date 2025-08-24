@@ -127,6 +127,11 @@ fun ProfileScreen(
         // View User Analytics
         ActionItem(text = "View User Analytics") { navController.navigate(Screen.UserAnalytics.route) }
 
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // View My Documents
+        ActionItem(text = "View My Documents") { navController.navigate(Screen.UserDocumentList.route) }
+
         Spacer(modifier = Modifier.height(24.dp))
 
         // ========================

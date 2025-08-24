@@ -13,6 +13,10 @@ sealed class Screen(val route: String) {
     object AddIncomeRecord : Screen("add_income_record")
     object IncomeRecordList : Screen("income_record_list")
     object UserAnalytics : Screen("user_analytics")
+    object UserRepayment : Screen("user_repayment/{loanId}") {
+        fun createRoute(loanId: Int) = "user_repayment/$loanId"
+    }
+    object UserDocumentList : Screen("user_document_list")
 
 
     // Nested routes for Bottom Navigation
