@@ -105,7 +105,7 @@ fun ProfileScreen(
         Spacer(modifier = Modifier.height(8.dp))
 
         // Change Password
-        ActionItem(text = "Change Password") { onNavigateToSetPin() }
+        ActionItem(text = "Change Pin") { onNavigateToSetPin() }
 
         Spacer(modifier = Modifier.height(8.dp))
 

@@ -38,7 +38,6 @@ class TokenManager @Inject constructor(@ApplicationContext context: Context) {
             .remove(KEY_OTP_VERIFIED)
             .remove(KEY_PROFILE_COMPLETE)
             .remove(KEY_PIN_SET)
-            .remove(KEY_PHONE_NUMBER) // ADDED THIS LINE
             .apply()
     }
 
