@@ -10,10 +10,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -21,7 +19,9 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton // Added import for TextButton
 import androidx.compose.runtime.Composable
@@ -50,153 +50,160 @@ import com.example.nenaai.viewmodel.AuthState
 import com.example.nenaai.viewmodel.OneTimeEvent
 import kotlinx.coroutines.launch
 
+@RequiresApi(Build.VERSION_CODES.S)
 @Composable
-fun OtpVerificationScreen(navController: NavController, authViewModel: AuthViewModel = hiltViewModel()) { // Added navController parameter
+fun OtpVerificationScreen(
+    navController: NavController,
+    authViewModel: AuthViewModel = hiltViewModel()
+) {
     var otpInput by remember { mutableStateOf("") }
     val authState by authViewModel.authState.collectAsStateWithLifecycle()
     val phoneNumber by authViewModel.phoneNumber.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
-    LaunchedEffect(Unit) { // Observe oneTimeEvent
+    LaunchedEffect(Unit) {
         authViewModel.oneTimeEvent.collect { event ->
-            when (event) {
-                is OneTimeEvent.Success -> {
-                    scope.launch {
-                        snackbarHostState.showSnackbar(
-                            message = event.authResponse.message,
-                            withDismissAction = true
-                        )
-                    }
-                    // onVerificationSuccess() // Removed: Navigation handled by NavGraph
-                }
-                is OneTimeEvent.Error -> {
-                    scope.launch {
-                        snackbarHostState.showSnackbar(
-                            message = event.message,
-                            withDismissAction = true
-                        )
-                    }
-                }
+            val message = when (event) {
+                is OneTimeEvent.Success -> event.authResponse.message
+                is OneTimeEvent.Error -> event.message
+            }
+            scope.launch {
+                snackbarHostState.showSnackbar(message = message, withDismissAction = true)
             }
         }
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(24.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Icon(
-            Icons.Default.Call,
-            contentDescription = "OTP Verification",
-            modifier = Modifier.size(96.dp),
-            tint = MaterialTheme.colorScheme.primary
-        )
-        Spacer(modifier = Modifier.height(48.dp))
+    NENA_AI_MOBILETheme {
+        Surface(
+            modifier = Modifier.fillMaxSize(),
+            color = MaterialTheme.colorScheme.background
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 32.dp)
+                    .padding(top = 64.dp),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Lock,
+                    contentDescription = "OTP Icon",
+                    modifier = Modifier.size(64.dp),
+                    tint = MaterialTheme.colorScheme.primary
+                )
+                Spacer(modifier = Modifier.height(32.dp))
 
-        Text(
-            text = "Verify Your Number",
-            style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Bold),
-            color = MaterialTheme.colorScheme.onBackground,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.fillMaxWidth()
-        )
-        Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "Verify Your Number",
+                    style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Bold),
+                    color = MaterialTheme.colorScheme.primary,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Spacer(modifier = Modifier.height(12.dp))
 
-        Text(
-            text = "Enter the 6-digit code sent to $phoneNumber",
-            style = MaterialTheme.typography.bodyLarge,
-            textAlign = TextAlign.Center,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.fillMaxWidth()
-        )
-        Spacer(modifier = Modifier.height(32.dp))
+                Text(
+                    text = "Enter the 6-digit code sent to $phoneNumber",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Spacer(modifier = Modifier.height(48.dp))
 
-        OutlinedTextField(
-            value = otpInput,
-            onValueChange = { newValue ->
-                if (newValue.length <= 6 && newValue.all { it.isDigit() }) {
-                    otpInput = newValue
+                OutlinedTextField(
+                    value = otpInput,
+                    onValueChange = { newValue ->
+                        if (newValue.length <= 6 && newValue.all { it.isDigit() }) {
+                            otpInput = newValue
+                        }
+                    },
+                    label = { Text("6-digit OTP") },
+                    placeholder = { Text("e.g., 123456") },
+                    leadingIcon = {
+                        Icon(Icons.Default.Lock, contentDescription = "OTP Icon")
+                    },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = MaterialTheme.shapes.large,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                    )
+                )
+
+                Spacer(modifier = Modifier.height(32.dp))
+
+                Button(
+                    onClick = { authViewModel.verifyOTP(phoneNumber, otpInput) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
+                    shape = MaterialTheme.shapes.large,
+                    elevation = ButtonDefaults.buttonElevation(defaultElevation = 2.dp),
+                    enabled = authState !is AuthState.Loading
+                ) {
+                    if (authState is AuthState.Loading) {
+                        CircularProgressIndicator(
+                            color = MaterialTheme.colorScheme.onPrimary,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    } else {
+                        Text(
+                            "Verify",
+                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Medium),
+                            color = MaterialTheme.colorScheme.onPrimary
+                        )
+                    }
                 }
-            },
-            label = { Text("6-digit OTP") },
-            placeholder = { Text("e.g., 123456") },
-            leadingIcon = {
-                Icon(Icons.Default.Lock, contentDescription = "OTP Icon")
-            },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(12.dp)
-        )
 
-        Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
-        Button(
-            onClick = { authViewModel.verifyOTP(phoneNumber, otpInput) },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.primary
-            ),
-            shape = RoundedCornerShape(12.dp),
-            elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp),
-            enabled = authState !is AuthState.Loading
-        ) {
-            if (authState is AuthState.Loading) {
-                CircularProgressIndicator(color = MaterialTheme.colorScheme.onPrimary, modifier = Modifier.size(24.dp))
-            } else {
-                Text(
-                    "Verify",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onPrimary
-                )
+                Button(
+                    onClick = { authViewModel.resendOTP(phoneNumber, otpInput) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp),
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        containerColor = Color.Transparent,
+                        contentColor = MaterialTheme.colorScheme.primary
+                    ),
+                    shape = MaterialTheme.shapes.large,
+                    elevation = ButtonDefaults.buttonElevation(defaultElevation = 0.dp),
+                    enabled = authState !is AuthState.Loading
+                ) {
+                    if (authState is AuthState.Loading) {
+                        CircularProgressIndicator(
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    } else {
+                        Text("Resend OTP", style = MaterialTheme.typography.titleMedium)
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                TextButton(
+                    onClick = {
+                        authViewModel.clearPhoneNumber()
+                        navController.popBackStack()
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        "Change Number",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
             }
-        }
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Button(
-            onClick = { authViewModel.resendOTP(phoneNumber, otpInput) },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp),
-            colors = ButtonDefaults.outlinedButtonColors(
-                containerColor = Color.Transparent,
-                contentColor = MaterialTheme.colorScheme.primary
-            ),
-            shape = RoundedCornerShape(12.dp),
-            elevation = ButtonDefaults.buttonElevation(defaultElevation = 0.dp),
-            enabled = authState !is AuthState.Loading
-        ) {
-            if (authState is AuthState.Loading) {
-                CircularProgressIndicator(color = MaterialTheme.colorScheme.primary, modifier = Modifier.size(24.dp))
-            } else {
-                Text(
-                    "Resend OTP",
-                    style = MaterialTheme.typography.titleMedium
-                )
-            }
-        }
-        Spacer(modifier = Modifier.height(16.dp))
-
-        TextButton(
-            onClick = {
-                authViewModel.clearPhoneNumber()
-                navController.popBackStack()
-            },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(
-                "Change Number",
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.primary
-            )
+            CommonSnackbar(snackbarHostState = snackbarHostState)
         }
     }
-    CommonSnackbar(snackbarHostState = snackbarHostState)
 }
 
 @RequiresApi(Build.VERSION_CODES.S)

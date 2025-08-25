@@ -3,13 +3,11 @@ package com.example.nenaai.ui.screens
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
@@ -24,27 +22,7 @@ import com.example.nenaai.viewmodel.AuthViewModel
 import com.example.nenaai.viewmodel.OneTimeEvent
 import kotlinx.coroutines.launch
 
-private val BpiRed = Color(0xFFD32F2F)
-private val BpiLightGray = Color(0xFF757575)
-private val BpiWhite = Color(0xFFFFFFFF)
-
-@Composable
-fun BpiInspiredTheme(content: @Composable () -> Unit) {
-    MaterialTheme(
-        colorScheme = MaterialTheme.colorScheme.copy(
-            primary = BpiRed,
-            onPrimary = BpiWhite,
-            secondary = BpiLightGray,
-            onSecondary = BpiWhite,
-            background = BpiWhite,
-            onBackground = Color.Black,
-            surface = BpiWhite,
-            onSurfaceVariant = BpiLightGray
-        ),
-        content = content
-    )
-}
-
+@RequiresApi(Build.VERSION_CODES.S)
 @Composable
 fun LoginScreen(
     authViewModel: AuthViewModel = hiltViewModel(),
@@ -77,7 +55,7 @@ fun LoginScreen(
         }
     }
 
-    BpiInspiredTheme {
+    NENA_AI_MOBILETheme {
         Surface(
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colorScheme.background
@@ -85,25 +63,27 @@ fun LoginScreen(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(32.dp),
-                verticalArrangement = Arrangement.Center,
+                    .padding(horizontal = 32.dp)
+                    .padding(top = 64.dp),
+                verticalArrangement = Arrangement.Center, // Proper vertical centering
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // Placeholder for BPI-like logo
                 Text(
-                    text = "NENA AI",
+                    text = "Nena AI",
                     style = MaterialTheme.typography.headlineLarge.copy(
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.primary
                     ),
-                    modifier = Modifier.fillMaxWidth().wrapContentHeight(),
-                    textAlign = TextAlign.Center
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .wrapContentHeight(),
+                    textAlign = TextAlign.Center,
                 )
                 Spacer(modifier = Modifier.height(64.dp))
 
                 Text(
-                    text = "Welcome to NENA AI",
-                    style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
+                    text = "Welcome to Nena AI",
+                    style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Bold),
                     color = MaterialTheme.colorScheme.onBackground,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.fillMaxWidth()
@@ -113,7 +93,7 @@ fun LoginScreen(
                 Text(
                     text = "Enter your mobile number to get started. We'll send a verification code.",
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = MaterialTheme.colorScheme.onSurface,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -134,7 +114,11 @@ fun LoginScreen(
                     },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(16.dp)
+                    shape = MaterialTheme.shapes.large,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                    )
                 )
 
                 Spacer(modifier = Modifier.height(32.dp))
@@ -159,14 +143,15 @@ fun LoginScreen(
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.primary
                     ),
-                    shape = RoundedCornerShape(16.dp),
+                    shape = MaterialTheme.shapes.large,
                     elevation = ButtonDefaults.buttonElevation(defaultElevation = 2.dp),
-                    enabled = authState !is AuthState.Loading
+                    enabled = authState !is AuthState.Loading,
+                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
                 ) {
                     if (authState is AuthState.Loading) {
                         CircularProgressIndicator(
                             color = MaterialTheme.colorScheme.onPrimary,
-                            modifier = Modifier.size(24.dp)
+                            modifier = Modifier.size(20.dp)
                         )
                     } else {
                         Text(
