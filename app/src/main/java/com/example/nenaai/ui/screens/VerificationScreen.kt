@@ -14,6 +14,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Create
 import androidx.compose.material3.*
@@ -68,7 +69,7 @@ import java.util.*
                     navigationIcon = {
                         IconButton(onClick = { navController.popBackStack() }) {
                             Icon(
-                                imageVector = Icons.Default.ArrowDropDown, // change to ArrowBack if needed
+                                imageVector = Icons.Default.ArrowBack, // change to ArrowBack if needed
                                 contentDescription = "Back"
                             )
                         }

@@ -46,7 +46,7 @@ data class User(
     val last_name: String,
     val verification_status: String,
     val income: Double?,
-    val loan_status: String
+    val loan_status: String?
 )
 
 data class UserVerificationRequest(
