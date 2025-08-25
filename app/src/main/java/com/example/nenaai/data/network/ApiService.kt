@@ -46,7 +46,7 @@ interface ApiService {
         @Body request: ApplyLoanRequest
     ): Response<LoanResponse>
 
-    @POST("chat/")
+    @POST("chat/chat/")
     suspend fun postChatMessage(@Body request: ChatRequest): Response<ChatResponse>
 
     @POST("users/verify-details/")

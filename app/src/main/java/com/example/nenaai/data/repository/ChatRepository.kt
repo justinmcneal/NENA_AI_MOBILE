@@ -20,8 +20,7 @@ class ChatRepository @Inject constructor(private val apiService: ApiService) {
         }
     }
 
-    suspend fun sendMessage(message: String): ChatResponse {
-        val request = ChatRequest(message)
+    suspend fun sendMessage(request: ChatRequest): ChatResponse {
         val response = apiService.postChatMessage(request)
         return handleApiResponse(response)
     }

@@ -8,10 +8,12 @@ data class ChatMessage(
 
 // Data sent to the backend API
 data class ChatRequest(
-    val message: String
+    val message: String,
+    val conversation_id: String? = null // Added conversation_id
 )
 
 // Data received from the backend API
 data class ChatResponse(
-    val reply: String
+    val reply: String,
+    val conversation_id: String // Added conversation_id
 )
