@@ -280,27 +280,30 @@ fun HomeScreen(
                                                 }
                                             }
                                             Spacer(modifier = Modifier.height(12.dp))
-                                            Card(
-                                                modifier = Modifier.fillMaxWidth(),
-                                                shape = AppShapes.medium,
-                                                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.tertiary)
-                                            ) {
-                                                Column(
-                                                    modifier = Modifier.padding(12.dp),
-                                                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                                            if (status == "PENDING" || (status == "ACTIVE" && latestLoan.months_left == latestLoan.loan_term)) {
+                                                Card(
+                                                    modifier = Modifier.fillMaxWidth(),
+                                                    shape = AppShapes.medium,
+                                                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.tertiary)
                                                 ) {
-                                                    Text(
-                                                        text = "Next Steps",
-                                                        style = AppTypography.titleMedium,
-                                                        color = MaterialTheme.colorScheme.onTertiary
-                                                    )
-                                                    Text(
-                                                        text = "Please bring your downloaded loan receipt or loan code to the nearest BPI branch to claim your loan once approved.",
-                                                        style = AppTypography.bodyMedium,
-                                                        color = MaterialTheme.colorScheme.onTertiary
-                                                    )
+                                                    Column(
+                                                        modifier = Modifier.padding(12.dp),
+                                                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                                                    ) {
+                                                        Text(
+                                                            text = "Next Steps",
+                                                            style = AppTypography.titleMedium,
+                                                            color = MaterialTheme.colorScheme.onTertiary
+                                                        )
+                                                        Text(
+                                                            text = "Please bring your downloaded loan receipt or loan code to the nearest BPI branch to claim your loan once approved.",
+                                                            style = AppTypography.bodyMedium,
+                                                            color = MaterialTheme.colorScheme.onTertiary
+                                                        )
+                                                    }
                                                 }
                                             }
+
                                             Spacer(modifier = Modifier.height(8.dp))
                                             HorizontalDivider(
                                                 thickness = 2.dp,
