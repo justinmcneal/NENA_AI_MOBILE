@@ -3,6 +3,7 @@ package com.example.nenaai.navigation
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -21,8 +22,11 @@ import com.example.nenaai.viewmodel.ProfileViewModel
 import com.example.nenaai.viewmodel.ProfileOneTimeEvent
 import com.example.nenaai.data.local.TokenManager
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import com.example.nenaai.ui.screens.AddIncomeRecordScreen
 import com.example.nenaai.ui.screens.ApplyLoanScreen
+import com.example.nenaai.ui.screens.ContactSupport
+import com.example.nenaai.ui.screens.FaqsScreen
 import com.example.nenaai.ui.screens.IncomeRecordListScreen
 import com.example.nenaai.ui.screens.UserAnalyticsScreen
 import com.example.nenaai.viewmodel.ApplyLoanViewModel
@@ -35,7 +39,12 @@ fun NavGraph() {
     val authViewModel: AuthViewModel = hiltViewModel()
     val profileViewModel: ProfileViewModel = hiltViewModel()
     val tokenManager: TokenManager = hiltViewModel<AuthViewModel>().tokenManager // Inject TokenManager
-    val startDestination = getStartDestination(tokenManager)
+    val startDestination = if (authViewModel.isLoggedIn()) {
+        Screen.Main.route   // ✅ Already logged in
+    } else {
+        Screen.Login.route  // 🚪 No token, show login
+    }
+    val snackbarHostState: SnackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(Unit) {
         authViewModel.navigationEvent.collect { event ->
@@ -112,7 +121,7 @@ fun NavGraph() {
         startDestination = startDestination
     ) {
         composable(Screen.Login.route) {
-            LoginScreen(authViewModel = authViewModel)
+            LoginScreen(authViewModel = authViewModel, snackbarHostState,navController)
         }
         composable(Screen.OtpVerification.route) {
             OtpVerificationScreen(navController = navController, authViewModel = authViewModel)
@@ -156,6 +165,13 @@ fun NavGraph() {
         }
         composable(Screen.UserDocumentList.route) {
             com.example.nenaai.ui.screens.UserDocumentListScreen()
+        }
+        composable(Screen.FaqsScreen.route ){
+            FaqsScreen(onBack = { navController.popBackStack() })
+        }
+
+        composable(Screen.ContactSupport.route ){
+            ContactSupport(onBack = { navController.popBackStack() })
         }
 //        composable(Screen.UserAnalytics.route) {
 //            UserRepaymentScreen(onBack = { navController.popBackStack() })

@@ -52,6 +52,10 @@ fun PinVerificationScreen(
                         )
                     }
                     if (event.authResponse.user_status == "PIN_VERIFIED" || event.authResponse.access != null) {
+                        event.authResponse.access?.let { token ->
+                            authViewModel.saveToken(token)
+                        }
+
                         navController.navigate(Screen.Main.route) {
                             popUpTo(Screen.PinVerification.route) { inclusive = true }
                         }

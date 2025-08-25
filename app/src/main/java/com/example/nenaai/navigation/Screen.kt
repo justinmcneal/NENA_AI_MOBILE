@@ -15,6 +15,9 @@ sealed class Screen(val route: String) {
     object UserAnalytics : Screen("user_analytics")
     object UserDocumentList : Screen("user_document_list")
 
+    object  FaqsScreen : Screen("faqs")
+    object  ContactSupport : Screen("contact_support")
+
 
     // Nested routes for Bottom Navigation
     object BottomNav {

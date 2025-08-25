@@ -24,6 +24,7 @@ import com.example.nenaai.ui.theme.AppShapes
 import com.example.nenaai.viewmodel.ProfileViewModel
 import androidx.navigation.NavController
 import com.example.nenaai.navigation.Screen
+import com.example.nenaai.viewmodel.AuthViewModel
 import kotlinx.coroutines.launch
 
 @Composable
@@ -38,6 +39,7 @@ fun ProfileScreen(
     val userProfile by profileViewModel.userProfile.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
+    val authViewModel: AuthViewModel = hiltViewModel()
 
     LaunchedEffect(Unit) {
         profileViewModel.fetchUserProfile()
@@ -141,14 +143,16 @@ fun ProfileScreen(
 
         Button(
             onClick = {
-                navController.navigate(Screen.Login.route) {
-                    popUpTo(0) { inclusive = true }
-                }
+
                 scope.launch {
                     snackbarHostState.showSnackbar(
                         message = "Logged Out Successfully",
                         withDismissAction = true
                     )
+                }
+                authViewModel.deleteToken()
+                navController.navigate(Screen.Login.route) {
+                    popUpTo(0) { inclusive = true }
                 }
             },
             modifier = Modifier

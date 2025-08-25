@@ -155,6 +155,20 @@ class AuthViewModel @Inject constructor(
             }
         }
     }
+    fun saveToken(token: String) {
+        tokenManager.saveToken(token)
+    }
+
+    fun getToken(): String? {
+        return tokenManager.getToken()
+    }
+
+    fun deleteToken() {
+        tokenManager.deleteToken()
+    }
+    fun isLoggedIn(): Boolean {
+        return tokenManager.getToken() != null
+    }
 }
 
 sealed class AuthState {

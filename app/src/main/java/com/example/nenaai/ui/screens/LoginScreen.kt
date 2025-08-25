@@ -15,6 +15,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavController
+import com.example.nenaai.navigation.Screen
 import com.example.nenaai.ui.components.CommonSnackbar
 import com.example.nenaai.ui.theme.NENA_AI_MOBILETheme
 import com.example.nenaai.viewmodel.AuthState
@@ -26,7 +28,8 @@ import kotlinx.coroutines.launch
 @Composable
 fun LoginScreen(
     authViewModel: AuthViewModel = hiltViewModel(),
-    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() }
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
+    navController: NavController
 ) {
     val authState by authViewModel.authState.collectAsStateWithLifecycle()
     var textInput by remember { mutableStateOf("") }
@@ -51,6 +54,13 @@ fun LoginScreen(
                         )
                     }
                 }
+            }
+        }
+    }
+    LaunchedEffect(Unit) {
+        if (authViewModel.isLoggedIn()) {
+            navController.navigate(Screen.Main.route) {
+                popUpTo(Screen.Login.route) { inclusive = true }
             }
         }
     }
@@ -164,14 +174,5 @@ fun LoginScreen(
             }
             CommonSnackbar(snackbarHostState = snackbarHostState)
         }
-    }
-}
-
-@RequiresApi(Build.VERSION_CODES.S)
-@Preview(showBackground = true)
-@Composable
-fun LoginScreenPreview() {
-    NENA_AI_MOBILETheme {
-        LoginScreen()
     }
 }

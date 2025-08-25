@@ -39,7 +39,6 @@ fun MainScreen(navController: NavController, token: String) {
     val loanState by loanViewModel.loanDetails.collectAsStateWithLifecycle()
     val profileViewModel: ProfileViewModel = hiltViewModel()
     val profileState by profileViewModel.userProfile.collectAsStateWithLifecycle()
-
     // Initial fetch
     LaunchedEffect(Unit) {
         loanViewModel.fetchLoanData(token)
@@ -165,6 +164,8 @@ fun MainScreen(navController: NavController, token: String) {
                     ProfileScreen(
                         onNavigateToSetPin = { navController.navigate(Screen.SetPin.route) },
                         onNavigateToVerification = { navController.navigate(Screen.Verification.route) },
+                        onNavigateToFAQs={navController.navigate(Screen.FaqsScreen.route)},
+                        onNavigateToSupport ={navController.navigate(Screen.ContactSupport.route)},
                         navController = navController
                     )
                 }
