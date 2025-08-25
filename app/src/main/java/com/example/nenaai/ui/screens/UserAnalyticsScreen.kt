@@ -2,7 +2,7 @@ package com.example.nenaai.ui.screens
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -10,13 +10,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.nenaai.viewmodel.UserAnalyticsState
 import com.example.nenaai.viewmodel.UserAnalyticsViewModel
+import com.example.nenaai.ui.theme.AppTypography
+import com.example.nenaai.ui.theme.AppShapes
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -29,12 +30,25 @@ fun UserAnalyticsScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("User Analytics") },
+                title = {
+                    Text(
+                        "User Analytics",
+                        style = AppTypography.titleMedium,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back",
+                            tint = MaterialTheme.colorScheme.primary
+                        )
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.background
+                )
             )
         }
     ) { innerPadding ->
@@ -48,7 +62,7 @@ fun UserAnalyticsScreen(
             when (userAnalyticsState) {
                 is UserAnalyticsState.Loading -> {
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator()
+                        CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                     }
                 }
                 is UserAnalyticsState.Error -> {
@@ -60,11 +74,19 @@ fun UserAnalyticsScreen(
                         Text(
                             "Error: ${(userAnalyticsState as UserAnalyticsState.Error).message}",
                             color = MaterialTheme.colorScheme.error,
+                            style = AppTypography.bodyMedium,
                             textAlign = TextAlign.Center
                         )
                         Spacer(modifier = Modifier.height(16.dp))
-                        Button(onClick = { viewModel.fetchUserAnalytics() }) {
-                            Text("Retry")
+                        Button(
+                            onClick = { viewModel.fetchUserAnalytics() },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.primary,
+                                contentColor = MaterialTheme.colorScheme.onPrimary
+                            ),
+                            shape = AppShapes.medium
+                        ) {
+                            Text("Retry", style = AppTypography.titleMedium)
                         }
                     }
                 }
@@ -73,33 +95,31 @@ fun UserAnalyticsScreen(
                     Column(modifier = Modifier.fillMaxWidth()) {
                         Text(
                             "Financial Overview",
-                            style = MaterialTheme.typography.headlineSmall,
-                            fontWeight = FontWeight.Bold,
+                            style = AppTypography.headlineLarge,
+                            color = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.padding(bottom = 16.dp)
                         )
-                        AnalyticsItem("Total Loan Amount", "₱${String.format("%.2f", analytics.total_loan_amount)}")
-                        AnalyticsItem("Total Amount Repaid", "₱${String.format("%.2f", analytics.total_amount_repaid)}")
+                        AnalyticsItem("Total Loan Amount", "₱${String.format(Locale.US,"%.2f", analytics.total_loan_amount)}")
+                        AnalyticsItem("Total Amount Repaid", "₱${String.format(Locale.US,"%.2f", analytics.total_amount_repaid)}")
                         AnalyticsItem("Last Updated", analytics.last_updated)
 
                         Spacer(modifier = Modifier.height(24.dp))
 
                         Text(
                             "Key Metrics",
-                            style = MaterialTheme.typography.headlineSmall,
-                            fontWeight = FontWeight.Bold,
+                            style = AppTypography.headlineLarge,
+                            color = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.padding(bottom = 16.dp)
                         )
 
-                        // Average Monthly Income Bar Chart (simple horizontal bar)
                         IncomeBarChart(
                             label = "Average Monthly Income",
                             value = analytics.average_monthly_income,
-                            maxValue = 100000f // Assumed max for visualization; adjust based on context
+                            maxValue = 100000f
                         )
 
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        // Business Consistency Score Gauge
                         ConsistencyGauge(
                             label = "Business Consistency Score",
                             score = analytics.business_consistency_score
@@ -117,8 +137,11 @@ fun AnalyticsItem(label: String, value: String) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 8.dp),
-        elevation = CardDefaults.cardElevation(4.dp),
-        shape = MaterialTheme.shapes.medium
+        shape = AppShapes.medium,
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
+        ),
+        elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Row(
             modifier = Modifier
@@ -127,8 +150,8 @@ fun AnalyticsItem(label: String, value: String) {
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(label, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-            Text(value, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.primary)
+            Text(label, style = AppTypography.titleMedium, color = MaterialTheme.colorScheme.onSurface)
+            Text(value, style = AppTypography.bodyMedium, color = MaterialTheme.colorScheme.primary)
         }
     }
 }
@@ -141,11 +164,14 @@ fun IncomeBarChart(label: String, value: Double, maxValue: Float) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 8.dp),
-        elevation = CardDefaults.cardElevation(4.dp),
-        shape = MaterialTheme.shapes.medium
+        shape = AppShapes.medium,
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
+        ),
+        elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text(label, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+            Text(label, style = AppTypography.titleMedium, color = MaterialTheme.colorScheme.onSurface)
             Spacer(modifier = Modifier.height(8.dp))
             LinearProgressIndicator(
                 progress = { progress },
@@ -153,12 +179,13 @@ fun IncomeBarChart(label: String, value: Double, maxValue: Float) {
                     .fillMaxWidth()
                     .height(16.dp),
                 color = MaterialTheme.colorScheme.primary,
-                trackColor = MaterialTheme.colorScheme.surfaceVariant
+                trackColor = MaterialTheme.colorScheme.secondary
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                "₱${String.format("%.2f", value)} (out of assumed max ₱${String.format("%.0f", maxValue)})",
-                style = MaterialTheme.typography.bodyMedium,
+                "₱${String.format(Locale.US,"%.2f", value)} (out of assumed max ₱${String.format(Locale.US,"%.0f", maxValue)})",
+                style = AppTypography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface,
                 textAlign = TextAlign.End,
                 modifier = Modifier.fillMaxWidth()
             )
@@ -175,11 +202,14 @@ fun ConsistencyGauge(label: String, score: Double) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 8.dp),
-        elevation = CardDefaults.cardElevation(4.dp),
-        shape = MaterialTheme.shapes.medium
+        shape = AppShapes.medium,
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
+        ),
+        elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text(label, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+            Text(label, style = AppTypography.titleMedium, color = MaterialTheme.colorScheme.onSurface)
             Spacer(modifier = Modifier.height(8.dp))
             Box(
                 contentAlignment = Alignment.Center,
@@ -191,22 +221,23 @@ fun ConsistencyGauge(label: String, score: Double) {
                     progress = { progress },
                     modifier = Modifier.fillMaxSize(),
                     color = when {
-                        progress > 0.7f -> Color.Green
-                        progress > 0.4f -> Color.Yellow
-                        else -> Color.Red
+                        progress > 0.7f -> Color(0xFF4CAF50) // Green
+                        progress > 0.4f -> Color(0xFFFFC107) // Yellow
+                        else -> Color(0xFFF44336) // Red
                     },
                     strokeWidth = 8.dp
                 )
                 Text(
                     "$percentage%",
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold
+                    style = AppTypography.headlineLarge,
+                    color = MaterialTheme.colorScheme.primary
                 )
             }
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                "Score: ${String.format("%.2f", score)} (1.0 = 100%)",
-                style = MaterialTheme.typography.bodyMedium,
+                "Score: ${String.format(Locale.US,"%.2f", score)} (1.0 = 100%)",
+                style = AppTypography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth()
             )

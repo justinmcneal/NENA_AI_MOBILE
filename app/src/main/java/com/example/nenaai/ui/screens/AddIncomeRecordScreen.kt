@@ -4,10 +4,9 @@ import android.app.DatePickerDialog
 import android.widget.DatePicker
 import android.widget.Toast
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -17,13 +16,14 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.example.nenaai.ui.components.CommonSnackbar
 import com.example.nenaai.viewmodel.AddIncomeRecordEvent
 import com.example.nenaai.viewmodel.IncomeRecordViewModel
+import com.example.nenaai.ui.theme.AppTypography
+import com.example.nenaai.ui.theme.AppShapes
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddIncomeRecordScreen(
@@ -60,12 +60,21 @@ fun AddIncomeRecordScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Add Income Record", color = MaterialTheme.colorScheme.primary) },
+                title = {
+                    Text(
+                        "Add Income Record",
+                        style = AppTypography.titleMedium,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                },
                 navigationIcon = {
                     IconButton(onClick = { onRecordAdded() }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = MaterialTheme.colorScheme.primary)
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.background
+                )
             )
         },
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
@@ -85,9 +94,11 @@ fun AddIncomeRecordScreen(
                         amount = newValue
                     }
                 },
-                label = { Text("Amount") },
+                label = { Text("Amount", style = AppTypography.bodyMedium) },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                shape = AppShapes.medium,
+                textStyle = AppTypography.bodyMedium
             )
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -99,7 +110,7 @@ fun AddIncomeRecordScreen(
             OutlinedTextField(
                 value = recordDate,
                 onValueChange = {},
-                label = { Text("Record Date (YYYY-MM-DD)") },
+                label = { Text("Record Date (YYYY-MM-DD)", style = AppTypography.bodyMedium) },
                 readOnly = true,
                 trailingIcon = {
                     IconButton(onClick = {
@@ -115,18 +126,22 @@ fun AddIncomeRecordScreen(
                             year, month, day
                         ).show()
                     }) {
-                        Icon(Icons.Default.DateRange, contentDescription = "Select Date")
+                        Icon(Icons.Default.DateRange, contentDescription = "Select Date", tint = MaterialTheme.colorScheme.primary)
                     }
                 },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                shape = AppShapes.medium,
+                textStyle = AppTypography.bodyMedium
             )
             Spacer(modifier = Modifier.height(16.dp))
 
             OutlinedTextField(
                 value = notes,
                 onValueChange = { notes = it },
-                label = { Text("Notes (Optional)") },
-                modifier = Modifier.fillMaxWidth()
+                label = { Text("Notes (Optional)", style = AppTypography.bodyMedium) },
+                modifier = Modifier.fillMaxWidth(),
+                shape = AppShapes.medium,
+                textStyle = AppTypography.bodyMedium
             )
             Spacer(modifier = Modifier.height(24.dp))
 
@@ -144,9 +159,17 @@ fun AddIncomeRecordScreen(
                         }
                     }
                 },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp),
+                shape = AppShapes.large,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary
+                ),
+                elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp)
             ) {
-                Text("Add Record")
+                Text("Add Record", style = AppTypography.titleMedium)
             }
         }
     }

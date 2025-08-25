@@ -1,11 +1,12 @@
 package com.example.nenaai.ui.screens
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material3.*
@@ -14,12 +15,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.example.nenaai.data.model.ChatMessage
 import com.example.nenaai.ui.theme.NENA_AI_MOBILETheme
+import com.example.nenaai.ui.theme.AppTypography
+import com.example.nenaai.ui.theme.AppShapes
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -35,8 +36,8 @@ fun ChatScreen(
                 title = {
                     Text(
                         "NENA AI Assistant",
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 20.sp
+                        style = AppTypography.headlineLarge,
+                        color = MaterialTheme.colorScheme.onPrimary
                     )
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -78,7 +79,7 @@ fun MessageBubble(message: ChatMessage) {
         else MaterialTheme.colorScheme.surfaceVariant
     val textColor =
         if (message.isFromUser) MaterialTheme.colorScheme.onPrimary
-        else MaterialTheme.colorScheme.onSurfaceVariant
+        else MaterialTheme.colorScheme.onSurface
     val alignment =
         if (message.isFromUser) Alignment.CenterEnd else Alignment.CenterStart
 
@@ -93,15 +94,15 @@ fun MessageBubble(message: ChatMessage) {
     ) {
         Surface(
             color = bubbleColor,
-            shape = RoundedCornerShape(18.dp),
+            shape = AppShapes.large,
             tonalElevation = 2.dp,
             shadowElevation = 2.dp
         ) {
             Text(
                 text = message.text,
+                style = AppTypography.bodyMedium,
                 color = textColor,
-                modifier = Modifier.padding(12.dp),
-                fontSize = 16.sp
+                modifier = Modifier.padding(12.dp)
             )
         }
     }
@@ -124,8 +125,8 @@ fun MessageInput(
             onValueChange = onTextChange,
             modifier = Modifier
                 .weight(1f)
-                .clip(RoundedCornerShape(24.dp)),
-            placeholder = { Text("Ask NENA a question...") },
+                .clip(AppShapes.large),
+            placeholder = { Text("Ask NENA a question...", style = AppTypography.bodyMedium) },
             singleLine = true,
             colors = TextFieldDefaults.colors(
                 focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
@@ -133,7 +134,8 @@ fun MessageInput(
                 focusedIndicatorColor = Color.Transparent,
                 unfocusedIndicatorColor = Color.Transparent,
                 disabledIndicatorColor = Color.Transparent
-            )
+            ),
+            textStyle = AppTypography.bodyMedium
         )
         Spacer(modifier = Modifier.width(8.dp))
         IconButton(
@@ -147,14 +149,15 @@ fun MessageInput(
             Icon(
                 Icons.AutoMirrored.Filled.Send,
                 contentDescription = "Send Message",
-                tint = Color.White
+                tint = MaterialTheme.colorScheme.onPrimary
             )
         }
     }
 }
 
-@Composable
+@RequiresApi(Build.VERSION_CODES.S)
 @Preview(showBackground = true)
+@Composable
 fun ChatScreenPreview() {
     NENA_AI_MOBILETheme {
         val sampleMessages = listOf(

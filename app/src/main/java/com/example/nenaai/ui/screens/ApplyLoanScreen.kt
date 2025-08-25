@@ -7,26 +7,21 @@ import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
 import android.widget.Toast
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.view.drawToBitmap
 import com.example.nenaai.ui.components.LoanConfirmationCard
 import com.example.nenaai.viewmodel.ApplyLoanViewModel
+import com.example.nenaai.ui.theme.AppTypography
+import com.example.nenaai.ui.theme.AppShapes
 import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -47,26 +42,33 @@ fun ApplyLoanScreen(
     val loanResponse by viewModel.loanResponse.collectAsState()
     val context = LocalContext.current
 
-    // Dropdown state
     var expanded by remember { mutableStateOf(false) }
     val loanTermOptions = listOf("6", "12", "18", "24", "36")
-
-    // Trigger for receipt capture
     var captureTrigger by remember { mutableStateOf(false) }
 
     Scaffold(
         modifier = Modifier.statusBarsPadding(),
         topBar = {
             TopAppBar(
-                title = { Text("Apply for Loan", color = MaterialTheme.colorScheme.primary) },
+                title = {
+                    Text(
+                        "Apply for Loan",
+                        style = AppTypography.titleMedium,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(
-                            imageVector = Icons.Default.ArrowBack,
-                            contentDescription = "Back"
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back",
+                            tint = MaterialTheme.colorScheme.primary
                         )
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.background
+                )
             )
         },
         content = { paddingValues ->
@@ -79,7 +81,6 @@ fun ApplyLoanScreen(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 if (loanResponse == null) {
-                    // Monthly Income
                     OutlinedTextField(
                         value = monthlyIncome,
                         onValueChange = {
@@ -87,17 +88,19 @@ fun ApplyLoanScreen(
                             incomeError = if (it.toIntOrNull() != null && it.toInt() >= 5000) null
                             else "Income must be at least 5,000"
                         },
-                        label = { Text("Monthly Income") },
-                        modifier = Modifier.fillMaxWidth(),
-                        isError = incomeError != null
+                        label = { Text("Monthly Income", style = AppTypography.bodyMedium) },
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        isError = incomeError != null,
+                        shape = AppShapes.medium,
+                        textStyle = AppTypography.bodyMedium
                     )
                     incomeError?.let {
-                        Text(text = it, color = Color.Red, style = MaterialTheme.typography.bodySmall)
+                        Text(text = it, color = MaterialTheme.colorScheme.error, style = AppTypography.bodyMedium)
                     }
 
                     Spacer(Modifier.height(8.dp))
 
-                    // Loan Amount
                     OutlinedTextField(
                         value = loanAmount,
                         onValueChange = {
@@ -106,17 +109,19 @@ fun ApplyLoanScreen(
                             amountError = if (amount != null && amount in 5000..300000) null
                             else "Loan amount must be between 5,000 and 300,000"
                         },
-                        label = { Text("Loan Amount Request") },
-                        modifier = Modifier.fillMaxWidth(),
-                        isError = amountError != null
+                        label = { Text("Loan Amount Request", style = AppTypography.bodyMedium) },
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        isError = amountError != null,
+                        shape = AppShapes.medium,
+                        textStyle = AppTypography.bodyMedium
                     )
                     amountError?.let {
-                        Text(text = it, color = Color.Red, style = MaterialTheme.typography.bodySmall)
+                        Text(text = it, color = MaterialTheme.colorScheme.error, style = AppTypography.bodyMedium)
                     }
 
                     Spacer(Modifier.height(8.dp))
 
-                    // Loan Term Dropdown
                     ExposedDropdownMenuBox(
                         expanded = expanded,
                         onExpandedChange = { expanded = !expanded }
@@ -125,12 +130,14 @@ fun ApplyLoanScreen(
                             value = loanTerm,
                             onValueChange = {},
                             readOnly = true,
-                            label = { Text("Loan Term (months)") },
+                            label = { Text("Loan Term (months)", style = AppTypography.bodyMedium) },
                             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
                             modifier = Modifier
                                 .menuAnchor()
                                 .fillMaxWidth(),
-                            isError = termError != null
+                            isError = termError != null,
+                            shape = AppShapes.medium,
+                            textStyle = AppTypography.bodyMedium
                         )
 
                         ExposedDropdownMenu(
@@ -139,7 +146,7 @@ fun ApplyLoanScreen(
                         ) {
                             loanTermOptions.forEach { option ->
                                 DropdownMenuItem(
-                                    text = { Text(option) },
+                                    text = { Text(option, style = AppTypography.bodyMedium) },
                                     onClick = {
                                         loanTerm = option
                                         termError = null
@@ -150,12 +157,11 @@ fun ApplyLoanScreen(
                         }
                     }
                     termError?.let {
-                        Text(text = it, color = Color.Red, style = MaterialTheme.typography.bodySmall)
+                        Text(text = it, color = MaterialTheme.colorScheme.error, style = AppTypography.bodyMedium)
                     }
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    // Button enabled only if valid
                     val isFormValid = incomeError == null &&
                             amountError == null &&
                             termError == null &&
@@ -180,10 +186,18 @@ fun ApplyLoanScreen(
                                 if (loanTerm.isBlank()) termError = "Please select a loan term"
                             }
                         },
-                        modifier = Modifier.fillMaxWidth(),
-                        enabled = isFormValid
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(56.dp),
+                        enabled = isFormValid,
+                        shape = AppShapes.large,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.primary,
+                            contentColor = MaterialTheme.colorScheme.onPrimary
+                        ),
+                        elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp)
                     ) {
-                        Text("Submit Loan Request")
+                        Text("Submit Loan Request", style = AppTypography.titleMedium)
                     }
                 } else {
                     LoanConfirmationCard(
@@ -198,7 +212,6 @@ fun ApplyLoanScreen(
         }
     )
 
-    // Capture card and save to gallery
     if (captureTrigger && loanResponse != null) {
         val view = LocalView.current
         LaunchedEffect(captureTrigger) {
@@ -206,13 +219,11 @@ fun ApplyLoanScreen(
             val bitmap = view.drawToBitmap()
             saveBitmapToGallery(context, bitmap, "LoanReceipt_${loanResponse!!.loan_code}")
             Toast.makeText(context, "Receipt saved to gallery!", Toast.LENGTH_SHORT).show()
-
             onNavigateHome()
             captureTrigger = false
         }
     }
 }
-
 
 fun saveBitmapToGallery(context: Context, bitmap: Bitmap, fileName: String) {
     val fos: java.io.OutputStream?
@@ -232,7 +243,6 @@ fun saveBitmapToGallery(context: Context, bitmap: Bitmap, fileName: String) {
             val image = java.io.File(imagesDir, "$fileName.png")
             fos = java.io.FileOutputStream(image)
 
-            // Notify media scanner
             val intent = android.content.Intent(android.content.Intent.ACTION_MEDIA_SCANNER_SCAN_FILE)
             intent.data = android.net.Uri.fromFile(image)
             context.sendBroadcast(intent)

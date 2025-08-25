@@ -1,6 +1,8 @@
 package com.example.nenaai.navigation
 
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -26,6 +28,7 @@ import com.example.nenaai.ui.screens.UserAnalyticsScreen
 import com.example.nenaai.viewmodel.ApplyLoanViewModel
 import com.example.nenaai.viewmodel.NavigationEvent
 
+@RequiresApi(Build.VERSION_CODES.S)
 @Composable
 fun NavGraph() {
     val navController = rememberNavController()
