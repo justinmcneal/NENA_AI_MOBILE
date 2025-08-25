@@ -231,7 +231,7 @@ fun HomeScreen(
                                             LoanDetailRow("Amount Payable:", "₱${String.format(Locale.US,"%.2f", latestLoan.amount_payable)}")
                                             LoanDetailRow("Monthly Repayment:", "₱${String.format(Locale.US, "%.2f", latestLoan.monthly_repayment)}")
                                             LoanDetailRow("Months Left:", "${latestLoan.months_left} of ${latestLoan.loan_term}")
-                                            LoanDetailRow("Next Payment:", latestLoan.next_repayment_due_date)
+                                            LoanDetailRow("Next Payment:", latestLoan.next_repayment_due_date ?: "N/A")
                                             LoanDetailRow(
                                                 "Repayment Status:",
                                                 when (latestLoan.repayment_status) {
