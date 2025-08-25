@@ -1,5 +1,7 @@
 package com.example.nenaai.ui.screens
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -197,6 +199,7 @@ fun OtpVerificationScreen(navController: NavController, authViewModel: AuthViewM
     CommonSnackbar(snackbarHostState = snackbarHostState)
 }
 
+@RequiresApi(Build.VERSION_CODES.S)
 @Preview(showBackground = true)
 @Composable
 fun OtpVerificationScreenPreview() {
