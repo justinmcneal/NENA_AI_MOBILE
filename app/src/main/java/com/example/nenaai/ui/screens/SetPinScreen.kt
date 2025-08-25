@@ -1,24 +1,22 @@
 package com.example.nenaai.ui.screens
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import com.example.nenaai.ui.components.CommonSnackbar
-import com.example.nenaai.ui.theme.NENA_AI_MOBILETheme
+import com.example.nenaai.ui.theme.AppTypography
+import com.example.nenaai.ui.theme.AppShapes
 import com.example.nenaai.viewmodel.ProfileOneTimeEvent
 import com.example.nenaai.viewmodel.ProfileState
 import com.example.nenaai.viewmodel.ProfileViewModel
@@ -50,7 +48,6 @@ fun SetPinScreen(
                         )
                     }
                 }
-
                 is ProfileOneTimeEvent.Error -> {
                     scope.launch {
                         snackbarHostState.showSnackbar(
@@ -66,12 +63,21 @@ fun SetPinScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Set PIN", color = MaterialTheme.colorScheme.primary) },
+                title = {
+                    Text(
+                        "Set PIN",
+                        style = AppTypography.titleMedium,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                },
                 navigationIcon = {
-                    IconButton(onClick = {navController.popBackStack()}) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                    IconButton(onClick = { navController.popBackStack() }) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = MaterialTheme.colorScheme.primary)
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.background
+                )
             )
         },
         snackbarHost = { SnackbarHost(snackbarHostState) }
@@ -95,8 +101,8 @@ fun SetPinScreen(
 
             Text(
                 text = "Set Your PIN",
-                style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Bold),
-                color = MaterialTheme.colorScheme.onBackground,
+                style = AppTypography.headlineLarge,
+                color = MaterialTheme.colorScheme.primary,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth()
             )
@@ -105,9 +111,9 @@ fun SetPinScreen(
 
             Text(
                 text = "Create a 4-6 digit PIN for quick and secure access.",
-                style = MaterialTheme.typography.bodyLarge,
+                style = AppTypography.bodyMedium,
                 textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                color = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.fillMaxWidth()
             )
 
@@ -120,12 +126,12 @@ fun SetPinScreen(
                         pinInput = newValue
                     }
                 },
-                label = { Text("PIN") },
-                placeholder = { Text("e.g., 1234") },
+                label = { Text("PIN", style = AppTypography.bodyMedium) },
+                placeholder = { Text("e.g., 1234", style = AppTypography.bodyMedium) },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
                 modifier = Modifier.fillMaxWidth(),
                 isError = profileState is ProfileState.Error,
-                shape = RoundedCornerShape(12.dp)
+                shape = AppShapes.medium
             )
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -147,9 +153,10 @@ fun SetPinScreen(
                     .fillMaxWidth()
                     .height(56.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primary
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary
                 ),
-                shape = RoundedCornerShape(12.dp),
+                shape = AppShapes.medium,
                 elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp),
                 enabled = profileState !is ProfileState.Loading
             ) {
@@ -161,7 +168,7 @@ fun SetPinScreen(
                 } else {
                     Text(
                         "Set PIN",
-                        style = MaterialTheme.typography.titleMedium,
+                        style = AppTypography.titleMedium,
                         color = MaterialTheme.colorScheme.onPrimary
                     )
                 }
@@ -169,4 +176,3 @@ fun SetPinScreen(
         }
     }
 }
-
